@@ -1,0 +1,53 @@
+.btn-tasks{
+    border: none;
+    padding: 20px 120px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    margin-right: 2px;
+    transition:0.5s;
+}
+
+.button-subheading{
+    font-size:25px;
+    padding-top: 15px;
+    font-weight: bolder;
+}
+
+
+
+.btn-tasks:hover{
+    background:#7e1bff;
+    box-shadow: -5px 5px 5px gray;
+    color: white;
+}
+
+.btn-travels{
+    border: none;
+    padding: 20px 120px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin-left: 2px;
+    transition: 0.5s;
+    
+}
+.btn-travels:hover{
+    background:#7e1bff;
+    box-shadow: 5px 5px 5px gray;
+    color: white;
+}
+
+
+
+#Tasks-Btn-Container{
+    position: absolute;
+    text-align: center;
+    max-width: 1100;
+    margin: auto;
+    width: 100%;
+}
+
+/*React Router Components*/
+#taskstravels{
+    position: relative;
+    margin-top: 100px;
+}

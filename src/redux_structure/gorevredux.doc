@@ -1,0 +1,51 @@
+gorev redux calışması, props ve detaylar
+
+1- GunIcıGorev props
+    -id: uuidv4()
+    -isim / name -constant row
+    -proje / project -constant row
+    -gorev yeri / taskLocation -constant row
+    -kiminle Gorusulecek / personToMeet
+    -tarih / date -constant row
+    -gidiş saati / timeOfLeave
+    -dönüş saati / timeOfReturn
+    -toplam süre / taskDuration
+    -ulaşım şekli / meansOfTransport
+    -avans / advance
+    -görev sebebi ve notlar / notes -constant row
+
+2- Seyahat görevi props
+    -id:uuidv4
+    -isim / name -constant row
+    -proje / project -constant row
+    -seyahat yeri / travelDestination -constant row
+    -gidiş tarihi / dateOfDeparture -constant row
+    -şirketen çıkış saati / departureTime (What time you leave the company) 
+    -donüş tarihi / dateOfReturn
+    -şirkete dönüş saati / timeOfReturn (What time you'll start working again)
+    -toplam süre / travelDuration
+    -kiminle gidiliyor / accompaniedBy
+    -kiminle görüşülecek / withWhomToMeet
+    -konaklama yeri / accommadationAddress 
+    -konaklama süresi / lengthOfStay
+    -konalama ücreti gecelik accommadationFee
+    -ulaşım şekli / meansOfTransport
+    -avans / Advance
+    -görev sebebi v notlar / notes -constant row
+    *belki isteğe göre araba kralandı mı hangi firmadan kiralandı ne kadara kiralandı gibi bilgiler eklenebilir
+
+3- Filtreler
+    -isme göre arama
+    -deparmana göre arama
+    -projeye göre arama
+    -tarih aralığına göre arama
+
+4-Sıralama 
+    -isim
+    -proje
+    -departman
+    -tarih(tarih veya gidiş tarihi)
+    
+    
+
+

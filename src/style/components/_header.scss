@@ -1,0 +1,36 @@
+header h1{
+    padding-left: 100px;
+}
+
+.containerHeader{
+    background:#6e00ff;
+    
+}
+.navbarHeader{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 5px;
+    overflow: auto;
+    padding-right: 20%;
+}
+
+.navbarHeader li{
+    float:right;
+    
+}
+
+.navbarHeader li #NL{
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+}
+
+.navbarHeader li #NL:hover{
+    color: #fceb00;
+}
+
+.is-active{
+    font-weight: bold;
+}
