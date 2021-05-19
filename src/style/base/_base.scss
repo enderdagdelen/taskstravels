@@ -13,7 +13,6 @@ html {
 }
 
 body {
-    background-image: url('../images/puzzle.jpg');
     font-family: 'Raleway', sans-serif;
     font-size: 1.6rem;
 }
@@ -30,6 +29,21 @@ button:disabled{
     font-weight: bold;
 }
 
+
+/* INPUT*/
+input[type=text]{
+    font-size: 1em;
+}
+
+
+/*SELECT*/
+optgroup{
+    font-size: 16px;
+}
+
+select{
+    height: 33px;
+}
 
 @media screen and (max-width:414px){
     h1{

@@ -176,7 +176,7 @@ const travelThree = store.dispatch(addTravel({
 
  // place dispatch calls over store.getState()
 
-//store.dispatch(setTaskSearchText('marlyn'))    
+//store.dispatch(setTaskSearchText(''))    
 //store.dispatch(setTravelSearchText('bea'))   ok 
 
 //store.dispatch(setTaskSortByName()) ok

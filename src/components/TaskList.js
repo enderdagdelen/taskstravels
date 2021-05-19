@@ -2,7 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import {TaskListItem,TaskListItem_1024,TaskListItem_768,TaskListItem_414} from './TaskListItem';
 import {TaskRows,TaskRows1024,TaskRows768,TaskRows414} from './TaskRows';
-import {useHistory} from 'react-router-dom'
+import {useHistory} from 'react-router-dom';
+import getVisibleTasks from '../selectors/taskSelector';
 
 
 window.addEventListener('resize',()=>{
@@ -71,9 +72,7 @@ const TaskList = (props) => (
 
 const mapStateToProps = (state) => {
     return{
-        tasks:state.tasks,
-        taskRows:state.taskRows,
-        taskFilters:state.taskFilters
+        tasks:getVisibleTasks(state.tasks,state.taskFilters)
     }
 }
 
