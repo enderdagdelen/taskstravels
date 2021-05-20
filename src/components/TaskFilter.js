@@ -1,45 +1,48 @@
 import React from "react";
 import {connect} from 'react-redux'
+import {
+    setTaskSearchText,
+    setTaskSortByName,
+    setTaskSortByProject,
+    setTaskSortByDate,
+    setTaskSortByAdvance,
+    setTaskOrderByDec,
+    setTaskOrderByInc} from '../actions/taskFilter'
 
+const TaskFilterComponent = (props) => (
 
-class TaskFilterComponent extends React.Component{
-/* 
-    constructor(props){
-        super(props);
-        this.state={
-            searchText:'',
-            sortBy:'date',
-            orderBy:'dec',
-            startDate:'',
-            endDate:''
-        }
-    }
-
-    SortByOnChange(e){
-        const sortData = e.target.value
-        this.setState(()=>{
-            return{
-                sortBy:sortData
-            }
-        })
-    }
-  */
-    render(){
-        return(
         <div id="taskFilter">
             <div className="row" id="filterFrame">
-            <h2 className="mb-3">Task Filters</h2>
+                <h2 className="mb-3">Task Filters<span className="secret_name"> TaskFilterComponent</span></h2>
                 <div className="col-3">
                     
                     <label htmlFor="searchText">Text</label>
-                    <input className="form-control" type="text" id="searchText" autoComplete="off" size="30"/>  
+                    <input className="form-control" type="text" id="searchText" 
+                    autoComplete="off" size="30" value={props.taskFilters.searchText} onChange={(e)=>{
+                        props.dispatch(setTaskSearchText(e.target.value))
+                    }}/>  
 
                 </div>
 
                 <div className="col-3">
                     
                     <label htmlFor="sortBy">SortBy</label>
-                    <select className="form-select" type="text" onChange={this.SortByOnChange}>
+                    <select className="form-select" value={props.taskFilters.sortBy} type="text" onChange={(e)=>{
+
+                        if(e.target.value==='date'){
+                            props.dispatch(setTaskSortByDate())
+                        }else if(e.target.value==='name'){
+                            props.dispatch(setTaskSortByName())
+                        }else if(e.target.value==='project'){
+                            props.dispatch(setTaskSortByProject())
+                        }else if(e.target.value==='advance'){
+                            props.dispatch(setTaskSortByAdvance())
+                        }else{
+                            props.dispatch(setTaskSortByDate())
+
+                        }
+     
+                    }}>
                         <optgroup>
                             <option value="date" >StartDate</option>
                             <option value="name">Name</option>
@@ -52,7 +55,13 @@ class TaskFilterComponent extends React.Component{
                 <div className="col-2">
                     
                     <label htmlFor="sortBy">SortBy</label>
-                    <select className="form-select">
+                    <select className="form-select" value={props.taskFilters.orderBy} onChange={(e)=>{
+                        if(e.target.value !=='dec'){
+                            props.dispatch(setTaskOrderByInc())
+                        }else{
+                            props.dispatch(setTaskOrderByDec())
+                        }
+                    }}>
                         <optgroup>
                             <option value="dec">Decreasing</option>
                             <option value="inc">Increasing</option>
@@ -75,9 +84,8 @@ class TaskFilterComponent extends React.Component{
             </div>
         
         </div>
-        )
-    }
-}
+        
+)
 
 const mapStateToProps = (state) => {
 
