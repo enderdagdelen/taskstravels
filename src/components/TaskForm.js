@@ -19,13 +19,17 @@ class TaskForm extends React.Component{
         taskLocation:'',
         withWhomToMeet:'',
         date:moment(),
-        timeOfLeave:'',
-        timeOfReturn:'',
+        timeOfLeave:moment().hour(8).minute(0).second(0).millisecond(0),
+        timeOfReturn:moment().hour(8).minute(0).second(0).millisecond(0),
         taskDuration:'',
         meansOfTransport:'',
         advance:'',
         notes:'',
-        calenderFocused:false  //singledatepicker requirement
+        calenderFocused_date:false,  //singledatepicker requirement date
+        hh_ToL:8, // specific for this form to manually modify time of leave
+        mm_ToL:0, // specific for this form to manually modify time of leave
+        hh_ToR:8, // specific for this form to manually modify time of return
+        mm_ToR:30 // specific for this form to manually modify time of return
     }
     //-----------------------------------name
     name_onChange=(e)=>{
@@ -71,7 +75,9 @@ class TaskForm extends React.Component{
     date_onChange = (dateInput) => {//singledatepicker requirement
         this.setState(()=>{
             return{
-                date:dateInput
+                date:dateInput,
+                timeOfLeave:moment(dateInput).hour(this.state.hh_ToL).minute(this.state.mm_ToL).second(0).millisecond(0),
+                timeOfReturn:moment(dateInput).hour(this.state.hh_ToR).minute(this.state.mm_ToR).second(0).millisecond(0)
             }
         })
     }
@@ -79,14 +85,119 @@ class TaskForm extends React.Component{
     focus_onChange = ({focused}) => {//singledatepicker requirement
         this.setState(()=>{
             return{
-                calenderFocused:focused
+                calenderFocused_date:focused
             }
         })
     }
     //-----------------------------------time of leave
-    //-----------------------------------time of return
-    //-----------------------------------task duration
+    ToL_HH_onChange = (e) => {
+        const hh_ToL_Input = e.target.value;
+        this.setState(()=>{
+            return{
+                hh_ToL:hh_ToL_Input,
+                timeOfLeave: moment(this.state.date).hour(hh_ToL_Input).minute(this.state.mm_ToL).second(0).millisecond(0)
+            }
+        })
+        setTimeout(()=>{
+            this.CalculateTaskDuration()
+        },250)
 
+    }
+
+    ToL_MM_onChange = (e) => {
+        const mm_ToL_Input = e.target.value;
+        this.setState(()=>{
+            return{
+                mm_ToL:mm_ToL_Input,
+                timeOfLeave:moment(this.state.date).hour(this.state.hh_ToL).minute(mm_ToL_Input).second(0).millisecond(0)
+
+            }
+        })
+        setTimeout(()=>{
+            this.CalculateTaskDuration()
+        },250)
+    }
+
+ 
+    //-----------------------------------time of return
+    ToR_HH_onChange = (e) => {
+        const hh_ToR_Input = e.target.value;
+        this.setState(()=>{
+            return{
+                hh_ToR:hh_ToR_Input,
+                timeOfReturn: moment(this.state.date).hour(hh_ToR_Input).minute(this.state.mm_ToR).second(0).millisecond(0)
+            }
+        })
+        setTimeout(()=>{
+            this.CalculateTaskDuration()
+        },250)
+    }
+
+    ToR_MM_onChange = (e) => {
+        const mm_ToR_Input = e.target.value;
+        this.setState(()=>{
+            return{
+                mm_ToR:mm_ToR_Input,
+                timeOfReturn:moment(this.state.date).hour(this.state.hh_ToR).minute(mm_ToR_Input).second(0).millisecond(0),
+            }
+        })
+
+        setTimeout(()=>{
+            this.CalculateTaskDuration()
+        },250)
+    }
+
+
+    //-----------------------------------task duration
+    CalculateTaskDuration = () => {
+        let hhL = parseInt(this.state.hh_ToL);
+        let mmL = parseInt(this.state.mm_ToL);
+        let hhR = parseInt(this.state.hh_ToR);
+        let mmR = parseInt(this.state.mm_ToR);
+
+        if(moment(this.state.timeOfLeave).isSameOrAfter(this.state.timeOfReturn)){
+            this.setState(()=>{
+                return{
+                    taskDuration:"time of leave can't be later then time of return"
+                }
+            })
+        }else if(hhL === 12 && mmL=== 0 && hhR===13 && mmR===0 || hhL === 12 && mmL=== 0 && hhR===13 && mmR===30){
+            this.setState(()=>{
+                return{
+                    taskDuration:0.5
+                }
+            })
+        }else if(hhL === 12 && mmL=== 30 && hhR===13 && mmR===0 || hhL === 12 && mmL=== 30 && hhR===13 && mmR===30){
+            this.setState(()=>{
+                return{
+                    taskDuration:0
+                }
+            })
+        
+        }else if(hhL <= 12 && hhR >= 13){
+            let a = this.state.timeOfReturn;
+            let b = this.state.timeOfLeave;
+            const duration = a.diff(b,'minutes')/60
+
+            this.setState(()=>{
+                return{
+                    taskDuration:duration -1
+                }
+            })
+        
+        }else{
+            let a = this.state.timeOfReturn;
+            let b = this.state.timeOfLeave;
+            const duration = a.diff(b,'minutes')/60
+            this.setState(()=>{
+                return{
+                    taskDuration:duration
+                }
+            })
+        }
+
+
+    }
 
 
     //-----------------------------------means of transport 
@@ -119,7 +230,6 @@ class TaskForm extends React.Component{
                 notes:notesInput
             }
         })
-        
     }
 
 
@@ -129,7 +239,7 @@ class TaskForm extends React.Component{
         return(
             <div className="container bg-light mt-5 pb-5 border" id="GunIciGorevFormu">
                 <div id="h2Frame">
-                    <h2 className="text-center p-4 "><i className="fas fa-pen-square fa-2x px-5" ></i>Daily Task Form</h2>
+                    <h2 className="text-center p-4 "><i className="fas fa-pen-square fa-2x px-5" ></i><span id="taskformHeader">Daily Task Form</span></h2>
                 </div>
                 <form>
                     <div className="row p-3">
@@ -148,49 +258,148 @@ class TaskForm extends React.Component{
                     </div>
 
                     <div className="row p-3">
-                        <div className="col-sm-4">
-                            <label htmlFor="withWhomToMeet">Meeting With</label>
-                            <input type="text" className="form-control" id="withWhomToMeet" value={this.state.withWhomToMeet} onChange={this.withWhomToMeet_onChange}/>
-                        </div>
+
                         <div className="col-sm-4">
                             <label htmlFor="date">Date</label>
-                            <SingleDatePicker 
+                            <div className="datepicker">
+                            <SingleDatePicker
                                 date = {this.state.date}
                                 onDateChange = {this.date_onChange}
-                                focused ={this.state.calenderFocused}
+                                focused ={this.state.calenderFocused_date}
                                 onFocusChange = {this.focus_onChange}
+                                numberOfMonths={1}
+                                isOutsideRange={()=>false}
                             />
+                            </div>
+                            
                             
                         </div>
+
+
                         <div className="col-sm-4">
-                            <label htmlFor="timeOfLeave">Time Of Leave</label>
-                            <input type="text" className="form-control" id="timeOfLeave"/>
+
+                            <label htmlFor="timeOfLeave" className="timelabels">Time Of Leave</label>
+                            <div className="row">
+                                <div className="col">
+                                    <select className="form-select" value={this.state.hh_ToL} onChange={this.ToL_HH_onChange} >
+                                        <optgroup>
+                                            <option value="">Hour</option>
+                                            <option value="0">00</option>
+                                            <option value="1">01</option>
+                                            <option value="2">02</option>
+                                            <option value="3">03</option>
+                                            <option value="4">04</option>
+                                            <option value="5">05</option>
+                                            <option value="6">06</option>
+                                            <option value="7">07</option>
+                                            <option value="8">08</option>
+                                            <option value="9">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                            <option value="13">13</option>
+                                            <option value="14">14</option>
+                                            <option value="15">15</option>
+                                            <option value="16">16</option>
+                                            <option value="17">17</option>
+                                            <option value="18">18</option>
+                                            <option value="19">19</option>
+                                            <option value="20">20</option>
+                                            <option value="21">21</option>
+                                            <option value="22">22</option>
+                                            <option value="23">23</option>
+                                            <option value="24">24</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div className="col">
+                                    <select className="form-select" value={this.state.mm_ToL} onChange={this.ToL_MM_onChange} >
+                                        <optgroup>
+                                            <option value="00">00</option>
+                                            <option value="30">30</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                        
                         </div>
+                        <div className="col-sm-4">
+                        <label htmlFor="timeOfReturn">Time Of Return</label>
+                        <div className="row">
+                            <div className="col">
+                                <select className="form-select" value={this.state.hh_ToR} onChange={this.ToR_HH_onChange} >
+                                    <optgroup>
+                                        <option value="">Hour</option>
+                                        <option value="0">00</option>
+                                        <option value="1">01</option>
+                                        <option value="2">02</option>
+                                        <option value="3">03</option>
+                                        <option value="4">04</option>
+                                        <option value="5">05</option>
+                                        <option value="6">06</option>
+                                        <option value="7">07</option>
+                                        <option value="8">08</option>
+                                        <option value="9">09</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                        <option value="19">19</option>
+                                        <option value="20">20</option>
+                                        <option value="21">21</option>
+                                        <option value="22">22</option>
+                                        <option value="23">23</option>
+                                        <option value="24">24</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div className="col">
+                                <select className="form-select" value={this.state.mm_ToR} onChange={this.ToR_MM_onChange} >
+                                    <optgroup>
+                                        <option value="00">00</option>
+                                        <option value="30">30</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                        
                     </div>
 
 
                     <div className="row p-3">
                         <div className="col-sm-4">
-                            <label htmlFor="timeOfReturn">Time Of Return</label>
-                            <input type="text" className="form-control" id="timeOfReturn"/>
+                            <label htmlFor="withWhomToMeet">Meeting With</label>
+                            <input type="text" className="form-control" id="withWhomToMeet" value={this.state.withWhomToMeet} onChange={this.withWhomToMeet_onChange}/>
                         </div>
+
                         <div className="col-sm-4">
                             <label htmlFor="taskDuration">Task Duration</label>
-                            <input type="text" className="form-control" id="taskDuration"/>
+                            <input type="text" className="form-control" id="taskDuration" placeholder={this.state.taskDuration} disabled/>
                         </div>
                         <div className="col-sm-4">
                             <label htmlFor="meansOfTransport">Means Of Transport</label>
                             <select className="form-select" id="meansOfTransport" value={this.state.meansOfTransport} onChange = {this.meansOfTransport_onChange}>
-                                <option value="">-select-</option>
-                                <option value="Airway">Airway</option>
-                                <option value="Company Vehicle">Company Vehicle</option>
-                                <option value="On Foot">On Foot</option>
-                                <option value="Own Vehicle">Own Vehicle</option>
-                                <option value="Private Transfer">Private Transfer</option>
-                                <option value="Public Transport">Public Transport</option>
-                                <option value="Seaway">Seaway</option>
-                                <option value="Taxi">Taxi</option>
-                                <option value="Train">Train</option>
+                                <optgroup>
+                                    <option value="">-select-</option>
+                                    <option value="Airway">Airway</option>
+                                    <option value="Chauffeured ">Chauffeured</option>
+                                    <option value="Company Vehicle">Company Vehicle</option>
+                                    <option value="On Foot">On Foot</option>
+                                    <option value="Own Vehicle">Own Vehicle</option>
+                                    <option value="Private Transfer">Private Transfer</option>
+                                    <option value="Public Transport">Public Transport</option>
+                                    <option value="Seaway">Seaway</option>
+                                    <option value="Taxi">Taxi</option>
+                                    <option value="Train">Train</option>
+
+                                </optgroup>
                             </select>
                         </div>
                     
@@ -200,7 +409,7 @@ class TaskForm extends React.Component{
                   <div className="row p-3">
                     <div className="col-sm-4">
                         <label htmlFor="advance">Advance</label>
-                        <input className="form-control" type="number" id="advance" value={this.state.advance} onChange={this.advance_onChange}/>
+                        <input className="form-control" type="text" id="advance" value={this.state.advance} onChange={this.advance_onChange}/>
                     </div>
                     <div className="col-sm-8">
                         <label htmlFor="notes">Notes</label>
