@@ -7,30 +7,36 @@ import 'react-dates/lib/css/_datepicker.css'
 
 moment.locale('tr')
 class TaskForm extends React.Component{
-   /*
+   
     constructor(props){
-        super(props)
+        super(props);
+        this.state={
+            name:props.taskToEdit ? props.taskToEdit.name:'',
+            project:props.taskToEdit ? props.taskToEdit.project:'',
+            taskLocation:props.taskToEdit ? props.taskToEdit.taskLocation:'',
+            withWhomToMeet:props.taskToEdit ? props.taskToEdit.withWhomToMeet:'',
+
+            
+            date:props.taskToEdit ? moment(props.taskToEdit.date):moment(),
+            timeOfLeave:props.taskToEdit ? moment(props.taskToEdit.timeOfLeave):moment().hour(8).minute(0).second(0).millisecond(0),
+            timeOfReturn:props.taskToEdit ? moment(props.taskToEdit.timeOfReturn):moment().hour(8).minute(0).second(0).millisecond(0),
+            taskDuration:props.taskToEdit ? props.taskToEdit.taskDuration:0,
+            meansOfTransport:props.taskToEdit ? props.taskToEdit.meansOfTransport:'',
+            advance:props.taskToEdit ? props.taskToEdit.advance:'0',
+            notes:props.taskToEdit ? props.taskToEdit.notes:'',
+            calenderFocused_date:false,  //singledatepicker requirement date
+            hh_ToL:props.taskToEdit ? props.taskToEdit.timeOfLeave.hour():8, // specific for this form to manually modify time of leave
+            mm_ToL:props.taskToEdit ? props.taskToEdit.timeOfLeave.minute():0, // specific for this form to manually modify time of leave
+            hh_ToR:props.taskToEdit ? props.taskToEdit.timeOfReturn.hour():8, // specific for this form to manually modify time of return
+            mm_ToR:props.taskToEdit ? props.taskToEdit.timeOfReturn.minute():30, // specific for this form to manually modify time of return
+            message:'', //For bootstrap alert
+            class:'',
+            taskClass:''
+        }
         
     }
-*/
-    state={
-        name:'',
-        project:'',
-        taskLocation:'',
-        withWhomToMeet:'',
-        date:moment(),
-        timeOfLeave:moment().hour(8).minute(0).second(0).millisecond(0),
-        timeOfReturn:moment().hour(8).minute(0).second(0).millisecond(0),
-        taskDuration:'',
-        meansOfTransport:'',
-        advance:'',
-        notes:'',
-        calenderFocused_date:false,  //singledatepicker requirement date
-        hh_ToL:8, // specific for this form to manually modify time of leave
-        mm_ToL:0, // specific for this form to manually modify time of leave
-        hh_ToR:8, // specific for this form to manually modify time of return
-        mm_ToR:30 // specific for this form to manually modify time of return
-    }
+    
+    
     //-----------------------------------name
     name_onChange=(e)=>{
         const nameInput = e.target.value;
@@ -232,7 +238,74 @@ class TaskForm extends React.Component{
         })
     }
 
+    onSubmit =(e)=>{
+        e.preventDefault()
+        console.log(typeof this.state.date.hour());
+        console.log(this.state.date.minute());
 
+        if(!this.state.name){
+            this.setState(()=>{
+                return{
+                    message:'Please Provide Name',
+                    class:'alert alert-danger'
+                }
+            })
+        }else if(!this.state.project){
+            this.setState(()=>{
+                return{
+                    message:'Please Provide Project',
+                    class:'alert alert-danger'
+                }
+            })
+        }else if(!this.state.project){
+            this.setState(()=>{
+                return{
+                    message:'Please Provide Task Location',
+                    class:'alert alert-danger'
+                }
+            })
+        
+        }else{
+
+            if(typeof (this.state.taskDuration) !== 'number'){
+                this.setState(()=>{
+                    return{
+                        message:'Please Check Time Of Leave And Return',
+                        taskClass:'alert alert-danger'
+                    }
+                })
+            }else{
+                this.setState(()=>{
+                    return{
+                        message:'Submitted',
+                        class:'alert alert-success',
+                        taskClass:'alert alert-success'
+
+    
+                    }
+                })
+                this.props.onSubmit({
+                    name:this.state.name,
+                    project:this.state.project,
+                    taskLocation:this.state.taskLocation,
+                    withWhomToMeet:this.state.withWhomToMeet,
+                    date:this.state.date.valueOf(),
+                    timeOfLeave:this.state.timeOfLeave.valueOf(),
+                    timeOfReturn:this.state.timeOfReturn.valueOf(),
+                    taskDuration:parseInt(this.state.taskDuration),
+                    meansOfTransport:this.state.meansOfTransport,
+                    advance:parseInt(this.state.advance),
+                    notes:this.state.notes
+                })
+
+                
+            }
+
+            
+        }
+
+    }
+        
 
 
     render(){
@@ -241,19 +314,20 @@ class TaskForm extends React.Component{
                 <div id="h2Frame">
                     <h2 className="text-center p-4 "><i className="fas fa-pen-square fa-2x px-5" ></i><span id="taskformHeader">Daily Task Form</span></h2>
                 </div>
-                <form>
+                { this.state.message !== '' && this.state.message==='Submitted'?<div className={this.state.class}>{this.state.message}</div> : <div className={this.state.class}>{this.state.message}</div> }
+                <form onSubmit={this.onSubmit}>
                     <div className="row p-3">
                         <div className="col-sm-4">
                             <label htmlFor="name">Name</label>
-                            <input type="text" className="form-control" id="name" value={this.state.name} onChange={this.name_onChange}/>
+                            <input type="text" className={this.state.class==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="name" value={this.state.name} onChange={this.name_onChange}/>
                         </div>
                         <div className="col-sm-4">
                             <label htmlFor="project">Project</label>
-                            <input type="text" className="form-control" id="project" value={this.state.project} onChange = {this.project_onChange} />
+                            <input type="text" className={this.state.class==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="project" value={this.state.project} onChange = {this.project_onChange} />
                         </div>
                         <div className="col-sm-4">
                             <label htmlFor="project">Task Location</label>
-                            <input type="text" className="form-control" id="taskLocation" value={this.state.taskLocation} onChange={this.taskLocation_onChange} />
+                            <input type="text" className={this.state.class==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="taskLocation" value={this.state.taskLocation} onChange={this.taskLocation_onChange} />
                         </div>
                     </div>
 
@@ -381,7 +455,7 @@ class TaskForm extends React.Component{
 
                         <div className="col-sm-4">
                             <label htmlFor="taskDuration">Task Duration</label>
-                            <input type="text" className="form-control" id="taskDuration" placeholder={this.state.taskDuration} disabled/>
+                            <input type="text" className={this.state.taskClass==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="taskDuration" placeholder={this.state.taskDuration} disabled/>
                         </div>
                         <div className="col-sm-4">
                             <label htmlFor="meansOfTransport">Means Of Transport</label>

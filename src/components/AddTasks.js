@@ -1,12 +1,20 @@
 import React from 'react';
 import TaskForm from './TaskForm'
+import {connect} from 'react-redux';
+import {addTask} from '../actions/task';
 
-const AddTask = () => (
+
+const AddTask = (props) => (
     <div>
         Add Task Component
-        <TaskForm />
+        <TaskForm 
+            onSubmit ={(task)=>{
+                props.dispatch(addTask(task))
+                setTimeout(()=>{props.history.push('/taskspage')},500)
+            }}
+        />
         
-    </div>
+    </div> 
 )
 
-export default AddTask;
+export default connect()(AddTask);
