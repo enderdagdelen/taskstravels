@@ -1,10 +1,9 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import TaskForm from '../components/TaskForm';
-
+import moment from 'moment'
 
 const EditTask = (props) => {
-    console.log(props);
     return (
         <div>
             Edit Tasks
@@ -14,6 +13,7 @@ const EditTask = (props) => {
             <TaskForm 
                 taskToEdit={props.task}
             />
+            
 
 
         </div>

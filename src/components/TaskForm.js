@@ -25,10 +25,17 @@ class TaskForm extends React.Component{
             advance:props.taskToEdit ? props.taskToEdit.advance:'0',
             notes:props.taskToEdit ? props.taskToEdit.notes:'',
             calenderFocused_date:false,  //singledatepicker requirement date
-            hh_ToL:props.taskToEdit ? props.taskToEdit.timeOfLeave.hour():8, // specific for this form to manually modify time of leave
-            mm_ToL:props.taskToEdit ? props.taskToEdit.timeOfLeave.minute():0, // specific for this form to manually modify time of leave
-            hh_ToR:props.taskToEdit ? props.taskToEdit.timeOfReturn.hour():8, // specific for this form to manually modify time of return
-            mm_ToR:props.taskToEdit ? props.taskToEdit.timeOfReturn.minute():30, // specific for this form to manually modify time of return
+            /*
+            hh_ToL:8, // specific for this form to manually modify time of leave
+            mm_ToL:0, // specific for this form to manually modify time of leave
+            hh_ToR:8, // specific for this form to manually modify time of return
+            mm_ToR:30, 
+*/
+            hh_ToL:props.taskToEdit ? moment(props.taskToEdit.timeOfLeave).hour():8, // specific for this form to manually modify time of leave
+            mm_ToL:props.taskToEdit ? moment(props.taskToEdit.timeOfLeave).minute():0, // specific for this form to manually modify time of leave
+            hh_ToR:props.taskToEdit ? moment(props.taskToEdit.timeOfReturn).hour():8, // specific for this form to manually modify time of return
+            mm_ToR:props.taskToEdit ? moment(props.taskToEdit.timeOfReturn).minute():30, // specific for this form to manually modify time of return
+            
             message:'', //For bootstrap alert
             class:'',
             taskClass:''
@@ -240,8 +247,11 @@ class TaskForm extends React.Component{
 
     onSubmit =(e)=>{
         e.preventDefault()
-        console.log(typeof this.state.date.hour());
-        console.log(this.state.date.minute());
+        
+        console.log(this.state.hh_ToL);
+        console.log(this.state.mm_ToL);
+        console.log(this.state.hh_ToR);
+        console.log(this.state.mm_ToR);
 
         if(!this.state.name){
             this.setState(()=>{

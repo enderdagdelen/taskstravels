@@ -10,7 +10,7 @@ const AddTask = (props) => (
         <TaskForm 
             onSubmit ={(task)=>{
                 props.dispatch(addTask(task))
-                setTimeout(()=>{props.history.push('/taskspage')},500)
+                //setTimeout(()=>{props.history.push('/taskspage')},500)
             }}
         />
         
