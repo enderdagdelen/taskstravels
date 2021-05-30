@@ -23,9 +23,14 @@ module.exports = {
             test:/\.s?css$/,
             use:[
                 'style-loader',
+                { loader: 'css-loader', options: { url: false } },
+                'sass-loader'
+             ]
+            /* use:[ // kurs eğitmenlerinden adam bunu silip yukarıdakini yazarsam image ekleyebileceğimi söyledi.
+                'style-loader',
                 'css-loader',
                 'sass-loader'
-            ]
+            ] */
         }]
     },
     devtool:'eval-cheap-module-source-map',
