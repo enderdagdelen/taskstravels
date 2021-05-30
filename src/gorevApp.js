@@ -79,8 +79,8 @@ const taskOne = store.dispatch(addTask({
     taskLocation:'Insurance Co.',
     withWhomToMeet:'Ms. Jen White',
     date:moment(1609502400000).format('Do MM YYYY'),//1st 01 2021
-    timeOfLeave:moment().format('HH:mm'),
-    timeOfReturn:moment().format('HH:mm'),
+    timeOfLeave:moment(),
+    timeOfReturn:moment(),
     taskDuration:2,
     meansOfTransport:'Company Car',
     advance:300,
@@ -93,8 +93,8 @@ const taskTwo = store.dispatch(addTask({
     taskLocation:'Car Rental Company',
     withWhomToMeet:'Mr. Jack Zoloff',
     date:moment(1612180800000).format('Do MM YYYY'),//1st 02 2021
-    timeOfLeave:moment().format('HH:mm'),
-    timeOfReturn:moment().format('HH:mm'),
+    timeOfLeave:moment(),
+    timeOfReturn:moment(),
     taskDuration:3,
     meansOfTransport:'Taxi',
     advance:200,
@@ -107,8 +107,8 @@ const taskThree = store.dispatch(addTask({
     taskLocation:'MediaMarkt',
     withWhomToMeet:'',
     date:moment(1614600000000).format('Do MM YYYY'),//1st 03 2021
-    timeOfLeave:moment().format('HH:mm'),
-    timeOfReturn:moment().format('HH:mm'),
+    timeOfLeave:moment(1622392501000),
+    timeOfReturn:moment(1622392606000),
     taskDuration:4,
     meansOfTransport:'Company Car',
     advance:3000,

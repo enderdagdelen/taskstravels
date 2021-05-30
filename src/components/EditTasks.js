@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import TaskForm from '../components/TaskForm';
 import moment from 'moment'
+import {editTask} from '../actions/task'
 
 const EditTask = (props) => {
     return (
@@ -11,11 +12,12 @@ const EditTask = (props) => {
             id is {props.match.params.id}
             <br></br>
             <TaskForm 
-                taskToEdit={props.task}
+                taskToEdit={props.task} 
+                onSubmit = {(task)=>{
+                    props.dispatch(editTask(props.match.params.id,task))
+                }}
             />
             
-
-
         </div>
     )
 }

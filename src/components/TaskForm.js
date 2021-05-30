@@ -31,14 +31,16 @@ class TaskForm extends React.Component{
             hh_ToR:8, // specific for this form to manually modify time of return
             mm_ToR:30, 
 */
-            hh_ToL:props.taskToEdit ? moment(props.taskToEdit.timeOfLeave).hour():8, // specific for this form to manually modify time of leave
-            mm_ToL:props.taskToEdit ? moment(props.taskToEdit.timeOfLeave).minute():0, // specific for this form to manually modify time of leave
-            hh_ToR:props.taskToEdit ? moment(props.taskToEdit.timeOfReturn).hour():8, // specific for this form to manually modify time of return
-            mm_ToR:props.taskToEdit ? moment(props.taskToEdit.timeOfReturn).minute():30, // specific for this form to manually modify time of return
+            hh_ToL:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfLeave).format("HH:mm").toString().split(':',1)):8, // specific for this form to manually modify time of leave
+            mm_ToL:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfLeave).format("HH:mm").toString().split(':',2)):0, // specific for this form to manually modify time of leave
+            hh_ToR:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfReturn).format("HH:mm").toString().split(':',1)):8, // specific for this form to manually modify time of return
+            mm_ToR:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfReturn).format("HH:mm").toString().split(':',2)):30, // specific for this form to manually modify time of return
             
             message:'', //For bootstrap alert
-            class:'',
-            taskClass:''
+            class:'', //For Bootstrap
+            taskClass:'', //For Bootstrap
+
+            
         }
         
     }
@@ -248,10 +250,7 @@ class TaskForm extends React.Component{
     onSubmit =(e)=>{
         e.preventDefault()
         
-        console.log(this.state.hh_ToL);
-        console.log(this.state.mm_ToL);
-        console.log(this.state.hh_ToR);
-        console.log(this.state.mm_ToR);
+
 
         if(!this.state.name){
             this.setState(()=>{
@@ -399,7 +398,7 @@ class TaskForm extends React.Component{
                                 <div className="col">
                                     <select className="form-select" value={this.state.mm_ToL} onChange={this.ToL_MM_onChange} >
                                         <optgroup>
-                                            <option value="00">00</option>
+                                            <option value="0">00</option>
                                             <option value="30">30</option>
                                         </optgroup>
                                     </select>
@@ -446,7 +445,7 @@ class TaskForm extends React.Component{
                             <div className="col">
                                 <select className="form-select" value={this.state.mm_ToR} onChange={this.ToR_MM_onChange} >
                                     <optgroup>
-                                        <option value="00">00</option>
+                                        <option value="0">00</option>
                                         <option value="30">30</option>
                                     </optgroup>
                                 </select>
