@@ -72,7 +72,7 @@ import { addPersonToMeetRow_Task,
 
 
 
-
+/*
 const taskOne = store.dispatch(addTask({
     name:'Rio Ferdinand',
     project:'New Insurance Policy',
@@ -114,15 +114,15 @@ const taskThree = store.dispatch(addTask({
     advance:3000,
     notes:'To Purchase New Hard Drives'
 }))
-/*
+*/
 const travelOne = store.dispatch(addTravel({
     name:'Lebron James',
     project:'Heaven Village Dam Project',
     travelDestination:'Las Palmas',
-    dateOfDeparture:moment(1617278400000),//01 04 2021
-    departureTime:moment().format('HH:mm'),
+    dateOfDeparture:moment(1617278400000).format('Do MM YYYY'),//01 04 2021
+    departureTime:moment(),
     dateOfReturn:moment().format('Do MM YYYY'),
-    timeOdReturn:moment().format('HH:mm'),
+    timeOfReturn:moment(),
     travelDuration:3,
     accompaniedBy:'Alone',
     withWhomToMeet:'Structural Engineer Mr. Henry Kewell',
@@ -138,10 +138,10 @@ const travelTwo = store.dispatch(addTravel({
     name:'Jenny Lopez',
     project:'Sales Education',
     travelDestination:'Istanbul',
-    dateOfDeparture:moment(1619870400000),//01 05 2021
-    departureTime:moment().format('HH:mm'),
+    dateOfDeparture:moment(1619870400000).format('Do MM YYYY'),//01 05 2021
+    departureTime:moment(),
     dateOfReturn:moment().format('Do MM YYYY'),
-    timeOdReturn:moment().format('HH:mm'),
+    timeOfReturn:moment(),
     travelDuration:6,
     accompaniedBy:'With Sales Team',
     withWhomToMeet:'Sales Conference',
@@ -157,10 +157,10 @@ const travelThree = store.dispatch(addTravel({
     name:'Bea Yugeros',
     project:'Irrigation',
     travelDestination:'Ciadad Real',
-    dateOfDeparture:moment(1622548800000),//01 06 2021
-    departureTime:moment().format('HH:mm'),
+    dateOfDeparture:moment(1622548800000).format('Do MM YYYY'),//01 06 2021
+    departureTime:moment(),
     dateOfReturn:moment().format('Do MM YYYY'),
-    timeOdReturn:moment().format('HH:mm'),
+    timeOfReturn:moment(),
     travelDuration:4,
     accompaniedBy:'Alone',
     withWhomToMeet:'Agriculture Official Of Ciaded Real',
@@ -171,7 +171,7 @@ const travelThree = store.dispatch(addTravel({
     advance:7000,
     notes:'To Attend Farmers Questions'
 }))
-*/
+
 
 
  // place dispatch calls over store.getState()

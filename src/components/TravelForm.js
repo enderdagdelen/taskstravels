@@ -6,7 +6,8 @@ import 'react-dates/initialize'// this prevents withStyles error but throws some
 import 'react-dates/lib/css/_datepicker.css'
 
 moment.locale('tr')
-class TaskForm extends React.Component{
+
+class TravelForm extends React.Component{
    
     constructor(props){
         super(props);
@@ -322,7 +323,7 @@ class TaskForm extends React.Component{
         return(
             <div className="container bg-light mt-5 pb-5 border" id="GunIciGorevFormu">
                 <div id="h2Frame">
-                    <h2 className="text-center p-4 "><i className="fas fa-pen-square fa-2x px-5" ></i><span id="taskformHeader">Daily Task Form</span></h2>
+                    <h2 className="text-center p-4 "><i className="fas fa-pen-square fa-2x px-5" ></i><span id="taskformHeader">Bussiness Travel Form</span></h2>
                 </div>
                 { this.state.message !== '' && this.state.message==='Submitted'?<div className={this.state.class}>{this.state.message}</div> : <div className={this.state.class}>{this.state.message}</div> }
                 <form onSubmit={this.onSubmit}>
@@ -516,7 +517,7 @@ class TaskForm extends React.Component{
 }
 
 
-export default TaskForm
+export default TravelForm
 
 
 /*

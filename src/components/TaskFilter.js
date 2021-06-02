@@ -54,8 +54,8 @@ const TaskFilterComponent = (props) => (
                 </div>
                 <div className="col-2">
                     
-                    <label htmlFor="sortBy">SortBy</label>
-                    <select className="form-select" value={props.taskFilters.orderBy} onChange={(e)=>{
+                    <label htmlFor="orderBy">OrderBy</label>
+                    <select className="form-select" id="orderBy" value={props.taskFilters.orderBy} onChange={(e)=>{
                         if(e.target.value !=='dec'){
                             props.dispatch(setTaskOrderByInc())
                         }else{
@@ -72,13 +72,13 @@ const TaskFilterComponent = (props) => (
                 </div>
 
                 <div className="col-2"> 
-                    <label htmlFor="searchText">Text</label>
-                    <input className="form-control" type="text" id="searchText"/>  
+                    <label htmlFor="from">Date From</label>
+                    <input className="form-control" type="text" id="from"/>  
                 </div>
 
                 <div className="col-2">    
-                    <label htmlFor="searchText">Text</label>
-                    <input className="form-control" type="text" id="searchText"/>  
+                    <label htmlFor="to">To</label>
+                    <input className="form-control" type="text" id="to"/>  
                 </div>
 
             </div>

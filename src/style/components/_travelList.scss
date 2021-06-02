@@ -1,0 +1,24 @@
+
+#travellist_container{
+    border:1px solid black;
+    padding: 30px;
+}
+
+#travellist_container th{
+    font-size: 16px;
+}
+
+#travellist_container td{
+    font-size: 14px;
+}
+
+@media screen and (max-width:414px){
+    #taskList th{
+        font-size: 14px;
+    };
+
+     #taskList td{
+        font-size:12px;
+    }
+
+}
