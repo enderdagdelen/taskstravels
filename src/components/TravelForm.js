@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import {SingleDatePicker} from 'react-dates';
+import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
 import 'react-dates/initialize'// this prevents withStyles error but throws some warnings
 //date picker css
 import 'react-dates/lib/css/_datepicker.css'
@@ -12,25 +12,29 @@ class TravelForm extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            name:props.taskToEdit ? props.taskToEdit.name:'',
-            project:props.taskToEdit ? props.taskToEdit.project:'',
-            taskLocation:props.taskToEdit ? props.taskToEdit.taskLocation:'',
-            withWhomToMeet:props.taskToEdit ? props.taskToEdit.withWhomToMeet:'-',
+            name:'',
+            project:'',
+            travelDestination:'',           
+            dateOfDeparture:moment(),
+            departureTime:moment().hour(8).minute(0).second(0).millisecond(0),
+            dateOfReturn:moment(),
+            timeOfReturn:moment().hour(8).minute(30).second(0).millisecond(0),
+            travelDuration:0.5,
+            accompaniedBy:'',
+            withWhomToMeet:'-',
+            accomodationAddress:'',
+            lengthOfStay:'',
+            accomodationFee:'',
+            meansOfTransport:'-',
+            advance:'0',
+            notes:'-',
 
-            
-            date:props.taskToEdit ? moment(props.taskToEdit.date):moment(),
-            timeOfLeave:props.taskToEdit ? moment(props.taskToEdit.timeOfLeave):moment().hour(8).minute(0).second(0).millisecond(0),
-            timeOfReturn:props.taskToEdit ? moment(props.taskToEdit.timeOfReturn):moment().hour(8).minute(30).second(0).millisecond(0),
-            taskDuration:props.taskToEdit ? props.taskToEdit.taskDuration:0.5,
-            meansOfTransport:props.taskToEdit ? props.taskToEdit.meansOfTransport:'-',
-            advance:props.taskToEdit ? props.taskToEdit.advance:'0',
-            notes:props.taskToEdit ? props.taskToEdit.notes:'-',
             calenderFocused_date:false,  //singledatepicker requirement date
- 
-            hh_ToL:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfLeave).format("HH:mm").toString().split(':',1)):8, // specific for this form to manually modify time of leave
-            mm_ToL:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfLeave).format("HH:mm").toString().slice(3,5)):0, // specific for this form to manually modify time of leave
-            hh_ToR:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfReturn).format("HH:mm").toString().split(':',1)):8, // specific for this form to manually modify time of return
-            mm_ToR:props.taskToEdit ? parseInt(moment(props.taskToEdit.timeOfReturn).format("HH:mm").toString().slice(3,5)):30, // specific for this form to manually modify time of return
+
+            hh_ToL:8, // specific for this form to manually modify time of leave
+            mm_ToL:0, // specific for this form to manually modify time of leave
+            hh_ToR:8, // specific for this form to manually modify time of return
+            mm_ToR:30, // specific for this form to manually modify time of return
             
             message:'', //For bootstrap alert-not part of redux
             class:'', //For Bootstrap-not part of redux
@@ -63,11 +67,11 @@ class TravelForm extends React.Component{
     }
 
     //-----------------------------------taskLocation
-    taskLocation_onChange = (e) =>{
-        const taskLocationInput = e.target.value
+    travelDestination_onChange = (e) =>{
+        const travelDestinationInput = e.target.value
         this.setState(()=>{
             return{
-                taskLocation:taskLocationInput
+                travelDestination:travelDestinationInput
             }
         })
     }
@@ -337,8 +341,8 @@ class TravelForm extends React.Component{
                             <input type="text" className={this.state.class==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="project" value={this.state.project} onChange = {this.project_onChange} />
                         </div>
                         <div className="col-sm-4">
-                            <label htmlFor="project">Task Location</label>
-                            <input type="text" className={this.state.class==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="taskLocation" value={this.state.taskLocation} onChange={this.taskLocation_onChange} />
+                            <label htmlFor="project">Travel Destination</label>
+                            <input type="text" className={this.state.class==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="travelDestination" value={this.state.travelDestination} onChange={this.travelDestination_onChange} />
                         </div>
                     </div>
 
@@ -347,14 +351,15 @@ class TravelForm extends React.Component{
                         <div className="col-sm-4">
                             <label htmlFor="date">Date</label>
                             <div className="datepicker">
-                            <SingleDatePicker
-                                date = {this.state.date}
-                                onDateChange = {this.date_onChange}
-                                focused ={this.state.calenderFocused_date}
-                                onFocusChange = {this.focus_onChange}
-                                numberOfMonths={1}
-                                isOutsideRange={()=>false}
-                            />
+                            <DateRangePicker
+                                startDate={this.state.dateOfDeparture} // momentPropTypes.momentObj or null,
+                                startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
+                                endDate={this.state.dateOfReturn} // momentPropTypes.momentObj or null,
+                                endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
+                                onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
+                                focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                                onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
+                                />
                             </div>
                             
                             

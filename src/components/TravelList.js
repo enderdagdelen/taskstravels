@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom';
 import moment from 'moment';
+import getVisibleTravels from '../selectors/travelSelector'
 
 import {TravelRows, TravelRows1500,TravelRows1024,TravelRows768,TravelRows414} from './TravelRows'
 import {TravelListItem, TravelListItem1500, TravelListItem1024, TravelListItem768, TravelListItem414} from './TravelListItem'
@@ -73,7 +74,7 @@ const TravelList = (props) => {
 
 const mapStateToProps = (state) => {
     return{
-        travels:state.travels
+        travels:getVisibleTravels(state.travels,state.travelFilters)
     }
 }
 

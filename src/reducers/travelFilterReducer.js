@@ -32,7 +32,7 @@ const travelFilterReducer = (state=travelFilterReducerDummyData,action) => {
                 ...state,
                 sortBy:'destination'
             }       
-        case 'SET_SORTBY_DATE':   
+        case 'SET_SORTBY_STARTDATE':   
             return{
                 ...state,
                 sortBy:'date'

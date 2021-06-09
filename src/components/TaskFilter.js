@@ -11,7 +11,7 @@ import {
 
 const TaskFilterComponent = (props) => (
 
-        <div id="taskFilter">
+        <div id="FilterComponent">
             <div className="row" id="filterFrame">
                 <h2 className="mb-3">Task Filters<span className="secret_name"> TaskFilterComponent</span></h2>
                 <div className="col-3">

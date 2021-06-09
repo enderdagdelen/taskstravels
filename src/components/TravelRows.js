@@ -18,6 +18,8 @@ export const TravelRows = () => (
         <th scope="col">Transport</th>
         <th scope="col">Advance</th>
         <th scope="col">Notes</th>
+        <th scope="col">Edit</th>
+
     </tr>
 )
 

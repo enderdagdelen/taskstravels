@@ -24,6 +24,8 @@ export const TravelListItem = ({id,name,project,travelDestination,
             <td>{meansOfTransport}</td>
             <td>{advance}</td>
             <td>{notes}</td>
+            <td><Link to={`/`}><i className="fas fa-user-edit" ></i></Link></td>
+
         </tr>
     )
 }
