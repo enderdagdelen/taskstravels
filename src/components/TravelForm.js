@@ -220,6 +220,54 @@ class TravelForm extends React.Component{
 
     }
 
+    //-----------------------------------accompaniedBy
+    accompaniedBy_onChange = (e) =>{
+        const accompaniedByInput = e.target.value
+
+        this.setState(()=>{
+            return{
+                accompaniedBy:accompaniedByInput
+            }
+        })
+    }
+
+    //-----------------------------------accompaniedBy
+    accomodationAddress_onChange = (e) =>{
+        const accomodationAddressInput = e.target.value
+
+        this.setState(()=>{
+            return{
+                accomodationAddress:accomodationAddressInput
+            }
+        })
+    }
+
+    //-----------------------------------length of stay
+    lengthOfStay_onChange = (e) => {
+        const lengthOfStayInput = e.target.value
+        if(!lengthOfStayInput || lengthOfStayInput.match(/^\d{1,}(\.\d{0,2})?$/)){
+            this.setState(()=>{
+                return{
+                    lengthOfStay:lengthOfStayInput
+                }
+            })
+        }
+    
+    }
+
+    //-----------------------------------accomodation Fee
+    accomodationFee_onChange = (e) => {
+
+        const accomodationFeeInput = e.target.value
+        if(!accomodationFeeInput || accomodationFeeInput.match(/^\d{1,}(\.\d{0,2})?$/)){
+            this.setState(()=>{
+                return{
+                    accomodationFee:accomodationFeeInput
+                }
+            })
+        }
+  
+    }
 
     //-----------------------------------means of transport 
     meansOfTransport_onChange = (e) => {
@@ -348,29 +396,23 @@ class TravelForm extends React.Component{
 
                     <div className="row p-3">
 
-                        <div className="col-sm-4">
-                            <label htmlFor="date">Date</label>
+                        <div className="col-sm-2">
+                            <label htmlFor="date">Date Of Departure</label>
                             <div className="datepicker">
-                            <DateRangePicker
-                                startDate={this.state.dateOfDeparture} // momentPropTypes.momentObj or null,
-                                startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
-                                endDate={this.state.dateOfReturn} // momentPropTypes.momentObj or null,
-                                endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
-                                onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
-                                focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-                                onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
+                            <SingleDatePicker 
+                         
                                 />
                             </div>
                             
-                            
+
                         </div>
+     
 
-
-                        <div className="col-sm-4">
+                        <div className="col-sm-2">
 
                             <label htmlFor="timeOfLeave" className="timelabels">Time Of Leave</label>
                             <div className="row">
-                                <div className="col">
+                                <div className="col-sm-6">
                                     <select className="form-select" value={this.state.hh_ToL} onChange={this.ToL_HH_onChange} >
                                         <optgroup>
                                             <option value="">Hour</option>
@@ -402,7 +444,7 @@ class TravelForm extends React.Component{
                                         </optgroup>
                                     </select>
                                 </div>
-                                <div className="col">
+                                <div className="col-sm-6">
                                     <select className="form-select" value={this.state.mm_ToL} onChange={this.ToL_MM_onChange} >
                                         <optgroup>
                                             <option value="0">00</option>
@@ -411,13 +453,22 @@ class TravelForm extends React.Component{
                                     </select>
                                 </div>
                             </div>
-                            
-                        
                         </div>
-                        <div className="col-sm-4">
+                        <div className="col-sm-2">
+                            <label htmlFor="date">Date Of Return</label>
+                            <div className="datepicker">
+                            <SingleDatePicker 
+                         
+                                />
+                            </div>
+                            
+
+                        </div>
+
+                        <div className="col-sm-2">
                         <label htmlFor="timeOfReturn">Time Of Return</label>
                         <div className="row">
-                            <div className="col">
+                            <div className="col-sm-6">
                                 <select className="form-select" value={this.state.hh_ToR} onChange={this.ToR_HH_onChange} >
                                     <optgroup>
                                         <option value="">Hour</option>
@@ -449,7 +500,8 @@ class TravelForm extends React.Component{
                                     </optgroup>
                                 </select>
                             </div>
-                            <div className="col">
+
+                            <div className="col-sm-6">
                                 <select className="form-select" value={this.state.mm_ToR} onChange={this.ToR_MM_onChange} >
                                     <optgroup>
                                         <option value="0">00</option>
@@ -457,21 +509,49 @@ class TravelForm extends React.Component{
                                     </optgroup>
                                 </select>
                             </div>
+
+
+
+                            </div>
                         </div>
-                    </div>
+                        <div className="col-sm-4">
+                        <label htmlFor="date">Travel Duration</label>
+                        <input type="text" className="form-control"/>
+                        
+
+                        </div>
                         
                     </div>
 
 
                     <div className="row p-3">
                         <div className="col-sm-4">
+                            <label htmlFor="taskDuration">Accompanied By</label>
+                            <input type="text" className={this.state.taskClass==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="accompaniedBy" placeholder={this.state.accompaniedBy} onChange={this.accompaniedBy_onChange}/>
+                        </div> 
+
+                        <div className="col-sm-4">
                             <label htmlFor="withWhomToMeet">Meeting With</label>
                             <input type="text" className="form-control" id="withWhomToMeet" value={this.state.withWhomToMeet} onChange={this.withWhomToMeet_onChange}/>
                         </div>
 
+
                         <div className="col-sm-4">
-                            <label htmlFor="taskDuration">Task Duration</label>
-                            <input type="text" className={this.state.taskClass==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="taskDuration" placeholder={this.state.taskDuration} disabled/>
+                            <label htmlFor="accomodationAddress">Accomodation Address</label>
+                            <input type="text" className="form-control" id="accomodationAddress" value={this.state.accomodationAddress} onChange={this.accomodationAddress_onChange}/>
+
+                        </div>
+                    
+                    </div>
+                    <div className="row p-3">
+                        <div className="col-sm-4">
+                            <label htmlFor="lengthOfStay">Length Of Stay</label>
+                            <input type="text" className="form-control" id="lengthOfStay" value={this.state.lengthOfStay} onChange={this.lengthOfStay_onChange}/>
+                        </div>
+
+                        <div className="col-sm-4">
+                            <label htmlFor="accomodationFee">Accomodaton Fee</label>
+                            <input type="text" className= "form-control" id="accomodationFee" placeholder={this.state.accomodationFee} onChange={this.accomodationFee_onChange}/>
                         </div>
                         <div className="col-sm-4">
                             <label htmlFor="meansOfTransport">Means Of Transport</label>
@@ -494,6 +574,7 @@ class TravelForm extends React.Component{
                         </div>
                     
                     </div>
+
 
 
                   <div className="row p-3">

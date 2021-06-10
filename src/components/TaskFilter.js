@@ -7,38 +7,67 @@ import {
     setTaskSortByDate,
     setTaskSortByAdvance,
     setTaskOrderByDec,
-    setTaskOrderByInc} from '../actions/taskFilter'
+    setTaskOrderByInc,
+    setTaskStartDate,
+    setTaskEndDate} from '../actions/taskFilter'
+import {DateRangePicker} from 'react-dates'; 
 
-const TaskFilterComponent = (props) => (
+/*
+ Normal bir component olan TaskFilterComponent'i, DateRangePicker kullanabilmek adına class component'e çevirdirdik.
+ Çünkü calenderFocused state'ini ihtiyacımız var. Bu değişikliği yaptıktan sonra ise artık bir class olduğu için this 
+ keyword'ünü props'lardan önce kullanmamız gerekiyor. Bu yüzden de gerekli yerlere this ekliyoruz.
+*/
 
-        <div id="FilterComponent">
+class TaskFilterComponent extends  React.Component {
+
+    state={
+        calenderFocused : null
+    }
+
+    onDatesChange = ({startDate,endDate}) => {
+        this.props.dispatch(setTaskStartDate(startDate))
+        this.props.dispatch(setTaskEndDate(endDate))
+
+    }   
+
+    onFocusChange = (calenderFocused) => {
+        this.setState(()=>{
+            return{
+                calenderFocused:calenderFocused
+            }
+        })
+    }
+
+    render () {
+        return (
+            <div id="FilterComponent">
             <div className="row" id="filterFrame">
                 <h2 className="mb-3">Task Filters<span className="secret_name"> TaskFilterComponent</span></h2>
-                <div className="col-3">
+                <div className="col-sm-3">
                     
                     <label htmlFor="searchText">Text</label>
                     <input className="form-control" type="text" id="searchText" 
-                    autoComplete="off" size="30" value={props.taskFilters.searchText} onChange={(e)=>{
-                        props.dispatch(setTaskSearchText(e.target.value))
+                    autoComplete="off" size="30" value={this.props.taskFilters.searchText} onChange={(e)=>{
+                        this.props.dispatch(setTaskSearchText(e.target.value))
                     }}/>  
 
                 </div>
 
-                <div className="col-3">
+                <div className="col-sm-3">
                     
                     <label htmlFor="sortBy">SortBy</label>
-                    <select className="form-select" value={props.taskFilters.sortBy} type="text" onChange={(e)=>{
+                    <select className="form-select" value={this.props.taskFilters.sortBy} type="text" onChange={(e)=>{
 
                         if(e.target.value==='date'){
-                            props.dispatch(setTaskSortByDate())
+                            this.props.dispatch(setTaskSortByDate())
                         }else if(e.target.value==='name'){
-                            props.dispatch(setTaskSortByName())
+                            this.props.dispatch(setTaskSortByName())
                         }else if(e.target.value==='project'){
-                            props.dispatch(setTaskSortByProject())
+                            this.props.dispatch(setTaskSortByProject())
                         }else if(e.target.value==='advance'){
-                            props.dispatch(setTaskSortByAdvance())
+                            this.props.dispatch(setTaskSortByAdvance())
                         }else{
-                            props.dispatch(setTaskSortByDate())
+                            this.props.dispatch(setTaskSortByDate())
 
                         }
      
@@ -52,14 +81,14 @@ const TaskFilterComponent = (props) => (
                     </select>  
 
                 </div>
-                <div className="col-2">
+                <div className="col-sm-2">
                     
                     <label htmlFor="orderBy">OrderBy</label>
-                    <select className="form-select" id="orderBy" value={props.taskFilters.orderBy} onChange={(e)=>{
+                    <select className="form-select" id="orderBy" value={this.props.taskFilters.orderBy} onChange={(e)=>{
                         if(e.target.value !=='dec'){
-                            props.dispatch(setTaskOrderByInc())
+                            this.props.dispatch(setTaskOrderByInc())
                         }else{
-                            props.dispatch(setTaskOrderByDec())
+                            this.props.dispatch(setTaskOrderByDec())
                         }
                     }}>
                         <optgroup>
@@ -71,21 +100,34 @@ const TaskFilterComponent = (props) => (
 
                 </div>
 
-                <div className="col-2"> 
-                    <label htmlFor="from">Date From</label>
-                    <input className="form-control" type="text" id="from"/>  
+                <div className="col-md-4"> 
+                    <label htmlFor="from">Dates Between</label> <br>
+                    </br>
+                    <DateRangePicker
+                        startDate={this.props.taskFilters.startDate} 
+                        startDateId="1"
+                        endDate={this.props.taskFilters.endDate} 
+                        endDateId="2"
+                        onDatesChange = {this.onDatesChange}
+                        focusedInput = {this.state.calenderFocused}
+                        onFocusChange = {this.onFocusChange}
+                        numberOfMonths={1}
+                        isOutsideRange= {()=>false}
+                        showClearDates={true}
+                        
+                    />  
                 </div>
 
-                <div className="col-2">    
-                    <label htmlFor="to">To</label>
-                    <input className="form-control" type="text" id="to"/>  
-                </div>
+
 
             </div>
         
         </div>
+        )
+    }
+
         
-)
+}
 
 const mapStateToProps = (state) => {
 

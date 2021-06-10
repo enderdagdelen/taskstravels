@@ -1,11 +1,11 @@
-
+import moment from 'moment'
 
 const taskFilterReducerDummyData ={
     searchText:'',
     sortBy:'date',//name,project,traveldestination,startDate,advance,lengthOfStay
     orderBy:'dec',
-    startDate:undefined,
-    endDate:undefined,
+    startDate:moment().startOf('month'),
+    endDate:moment().endOf('month'),
 }
 
 const taskFilterReducer = (state=taskFilterReducerDummyData,action) => {

@@ -72,7 +72,7 @@ import { addPersonToMeetRow_Task,
 
 
 
-/*
+
 const taskOne = store.dispatch(addTask({
     name:'Rio Ferdinand',
     project:'New Insurance Policy',
@@ -114,7 +114,7 @@ const taskThree = store.dispatch(addTask({
     advance:3000,
     notes:'To Purchase New Hard Drives'
 }))
-*/
+
 const travelOne = store.dispatch(addTravel({
     name:'Lebron James',
     project:'Heaven Village Dam Project',
