@@ -16,9 +16,9 @@ class TravelForm extends React.Component{
             project:'',
             travelDestination:'',           
             dateOfDeparture:moment(),
-            departureTime:moment().hour(8).minute(0).second(0).millisecond(0),
+            departureTime:moment().hour(9).minute(0).second(0).millisecond(0),
             dateOfReturn:moment(),
-            timeOfReturn:moment().hour(8).minute(30).second(0).millisecond(0),
+            timeOfReturn:moment().hour(18).minute(0).second(0).millisecond(0),
             travelDuration:0.5,
             accompaniedBy:'',
             withWhomToMeet:'-',
@@ -26,16 +26,23 @@ class TravelForm extends React.Component{
             lengthOfStay:'',
             accomodationFee:'',
             meansOfTransport:'-',
-            advance:'0',
+            advance:'',
             notes:'-',
 
-            calenderFocused_date:false,  //singledatepicker requirement date
+            calenderFocused_Departure:false,  //singledatepicker requirement date
+            calenderFocused_Return:false,       //singledatepicker requirement date
 
-            hh_ToL:8, // specific for this form to manually modify time of leave
+            hh_ToL:9, // specific for this form to manually modify time of leave
             mm_ToL:0, // specific for this form to manually modify time of leave
-            hh_ToR:8, // specific for this form to manually modify time of return
-            mm_ToR:30, // specific for this form to manually modify time of return
-            
+            hh_ToR:18, // specific for this form to manually modify time of return
+            mm_ToR:0, // specific for this form to manually modify time of return
+
+            startWorkingAt_hour:9,//moment().hour(8).minute(30).second(0).millisecond(0),
+            startWorkingAt_min:0,
+            quitWorkingAt_hour:18,
+            quitWorkingAt_min:0,
+            workingHours:9,
+            overTime_Hours:0,
             message:'', //For bootstrap alert-not part of redux
             class:'', //For Bootstrap-not part of redux
             taskClass:'', //For Bootstrap-not part of redux
@@ -86,138 +93,236 @@ class TravelForm extends React.Component{
         })
     }
 
-    //-----------------------------------date
+    //-----------------------------------date of departure
+
     date_onChange = (dateInput) => {//singledatepicker requirement
         this.setState(()=>{
             return{
-                date:dateInput,
-                timeOfLeave:moment(dateInput).hour(this.state.hh_ToL).minute(this.state.mm_ToL).second(0).millisecond(0),
-                timeOfReturn:moment(dateInput).hour(this.state.hh_ToR).minute(this.state.mm_ToR).second(0).millisecond(0)
+                dateOfDeparture:dateInput,
+                departureTime:moment(dateInput).hour(this.state.hh_ToL).minute(this.state.mm_ToL).second(0).millisecond(0),
+                
             }
         })
+        setTimeout(()=>{
+            this.CalculateTravelDuration()
+        },250)
     }
+
 
     focus_onChange = ({focused}) => {//singledatepicker requirement
         this.setState(()=>{
             return{
-                calenderFocused_date:focused
+                calenderFocused_Departure:focused
             }
         })
     }
-    //-----------------------------------time of leave
-    ToL_HH_onChange = (e) => {
-        const hh_ToL_Input = e.target.value;
+
+
+    //-----------------------------------date of return
+    date_onChange_R = (dateInput_R) => {//singledatepicker requirement
         this.setState(()=>{
             return{
-                hh_ToL:hh_ToL_Input,
-                timeOfLeave: moment(this.state.date).hour(hh_ToL_Input).minute(this.state.mm_ToL).second(0).millisecond(0)
+                dateOfReturn:dateInput_R,
+                timeOfReturn:moment(dateInput_R).hour(this.state.hh_ToR).minute(this.state.mm_ToR).second(0).millisecond(0)
             }
         })
         setTimeout(()=>{
-            this.CalculateTaskDuration()
+            this.CalculateTravelDuration()
+        },250)
+    }
+
+
+    focus_onChange_R = ({focused}) => {//singledatepicker requirement
+        this.setState(()=>{
+            return{
+                calenderFocused_Return:focused
+            }
+        })
+    }
+
+
+
+
+    //-----------------------------------time of leave
+    ToL_HH_onChange = (e) => {
+        const hh_ToL_Input = parseInt(e.target.value);
+        this.setState(()=>{
+            return{
+                hh_ToL:hh_ToL_Input,
+                departureTime: moment(this.state.dateOfDeparture).hour(hh_ToL_Input).minute(this.state.mm_ToL).second(0).millisecond(0)
+            }
+        })
+
+        setTimeout(()=>{
+            this.CalculateTravelDuration()
         },250)
 
     }
 
     ToL_MM_onChange = (e) => {
-        const mm_ToL_Input = e.target.value;
+        const mm_ToL_Input = parseInt(e.target.value);
         this.setState(()=>{
             return{
                 mm_ToL:mm_ToL_Input,
-                timeOfLeave:moment(this.state.date).hour(this.state.hh_ToL).minute(mm_ToL_Input).second(0).millisecond(0)
+                departureTime:moment(this.state.dateOfDeparture).hour(this.state.hh_ToL).minute(mm_ToL_Input).second(0).millisecond(0)
 
             }
         })
         setTimeout(()=>{
-            this.CalculateTaskDuration()
+            this.CalculateTravelDuration()
         },250)
     }
 
  
     //-----------------------------------time of return
     ToR_HH_onChange = (e) => {
-        const hh_ToR_Input = e.target.value;
+        const hh_ToR_Input = parseInt(e.target.value);
         this.setState(()=>{
             return{
                 hh_ToR:hh_ToR_Input,
-                timeOfReturn: moment(this.state.date).hour(hh_ToR_Input).minute(this.state.mm_ToR).second(0).millisecond(0)
+                timeOfReturn: moment(this.state.dateOfReturn).hour(hh_ToR_Input).minute(this.state.mm_ToR).second(0).millisecond(0)
             }
         })
         setTimeout(()=>{
-            this.CalculateTaskDuration()
+            this.CalculateTravelDuration()
         },250)
     }
 
     ToR_MM_onChange = (e) => {
-        const mm_ToR_Input = e.target.value;
+        const mm_ToR_Input = parseInt(e.target.value);
         this.setState(()=>{
             return{
                 mm_ToR:mm_ToR_Input,
-                timeOfReturn:moment(this.state.date).hour(this.state.hh_ToR).minute(mm_ToR_Input).second(0).millisecond(0),
+                timeOfReturn:moment(this.state.dateOfReturn).hour(this.state.hh_ToR).minute(mm_ToR_Input).second(0).millisecond(0),
             }
         })
 
         setTimeout(()=>{
-            this.CalculateTaskDuration()
+            this.CalculateTravelDuration()
         },250)
     }
 
 
     //-----------------------------------task duration
-    CalculateTaskDuration = () => {
-        let hhL = parseInt(this.state.hh_ToL);
-        let mmL = parseInt(this.state.mm_ToL);
-        let hhR = parseInt(this.state.hh_ToR);
-        let mmR = parseInt(this.state.mm_ToR);
+    CalculateTravelDuration = () => {
 
-        if(moment(this.state.timeOfLeave).isSameOrAfter(this.state.timeOfReturn)){
-            this.setState(()=>{
-                return{
-                    taskDuration:"time of leave can't be later then time of return"
-                }
-            })
-        }else if(hhL === 12 && mmL=== 0 && hhR===13 && mmR===0 || hhL === 12 && mmL=== 0 && hhR===13 && mmR===30){
-            this.setState(()=>{
-                return{
-                    taskDuration:0.5
-                }
-            })
-        }else if(hhL === 12 && mmL=== 30 && hhR===13 && mmR===0 || hhL === 12 && mmL=== 30 && hhR===13 && mmR===30){
-            this.setState(()=>{
-                return{
-                    taskDuration:0
-                }
-            })
-        
-        }else if(hhL <= 12 && hhR >= 13){
-            let a = this.state.timeOfReturn;
-            let b = this.state.timeOfLeave;
-            const duration = a.diff(b,'minutes')/60
+        let leave = this.state.dateOfDeparture
+        let back = this.state.dateOfReturn
 
-            this.setState(()=>{
-                return{
-                    taskDuration:duration -1
-                }
-            })
+        //number of hours worked in the day employee leaves the office
+
+        let firstStep; // time duration during the day when employee leaves the country
+        let overTime1; // overtime if the task or travel starts before the working hours
+        let normalHours; // hours which is spent for travel or task during workng hours. Like if you start working at 9 and leave office at 18 then you leave the office for travel bussiness at 12 so 3 hours for normal work and 6 hours for travel
+        let dailyHours; // a variant used to calculate normal hours
+        let overTime2; // if the travel or task starts after the normal working our, those ours are considered as overtime too.
+
+        //calculate overtime if travel starts before the time employees start working
+        if(this.state.startWorkingAt_hour === this.state.hh_ToL && this.state.startWorkingAt_min > this.state.mm_ToL){
+            overTime1 = Math.abs((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
         
+        }else if(this.state.startWorkingAt_hour === this.state.hh_ToL && this.state.startWorkingAt_min <= this.state.mm_ToL){
+            overTime1 = 0;
+        
+        }else if(this.state.startWorkingAt_hour > this.state.hh_ToL && this.state.startWorkingAt_min > this.state.mm_ToL){
+            overTime1 = this.state.startWorkingAt_hour - this.state.hh_ToL + ((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
+
+        }else if (this.state.startWorkingAt_hour > this.state.hh_ToL && this.state.startWorkingAt_min === this.state.mm_ToL){
+            overTime1 = this.state.startWorkingAt_hour - this.state.hh_ToL
+
+        }else if (this.state.startWorkingAt_hour > this.state.hh_ToL && this.state.startWorkingAt_min < this.state.mm_ToL){
+            overTime1 = this.state.startWorkingAt_hour - this.state.hh_ToL + ((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
         }else{
-            let a = this.state.timeOfReturn;
-            let b = this.state.timeOfLeave;
-            
-            let duration = a.diff(b,'minutes')/60;
-            
-            setTimeout(()=>{
-                this.setState(()=>{
-                    return{
-                        taskDuration:duration,
-                        test:duration
-                    }
-                })
-            },250)
-            
+            overTime1 = 0;
+        }
+
+        //Calculate the travel time which intersects with normal working hour if employee leaves the firm during working hours
+        dailyHours =  this.state.departureTime.diff(this.state.dateOfDeparture.hour(this.state.startWorkingAt_hour).minute(this.state.startWorkingAt_min).second(0).millisecond(0),'minute')
+
+        
+            if(overTime1 > 0){
+                normalHours = 9
+    
+            }else{
+                normalHours = dailyHours > 0 ? (dailyHours / 60 >= 9 ? 0 : 9 - (dailyHours / 60)) : 0;
+            }
+        
+                //------------------------  NEREDE KALDIM.
+
+        // eğer overtime1 değeri 0 dan büyükse otomatik olarak normal hours 9 olmak zorundadır. İşte bunu üstteki sidikli kod ile yapamadım. 
+
+        //dateOfDeparture gününde işten çıkış saatine göre mesai saatinden önce işten çıkış, mesai saatinde işten çıkış ve mesai saatinden 
+        //sonra işten çıkış senaryolarını yaptım. En son şu üstteki olay kaldı. Bundan sonra bu 3 değer yani ovvertime1 ve 2 ve normal hours dateOfDeparture
+        // tarihi için travel duration 'un first step'ini oluşturuyor. SecondStep de oluşturuldu. Şimdi sıra thirdstep için first step ile ilgili olarak yaptığım
+        // çalışmanın benzerini yapmakta. 
+
+
+
+        //calculate time if travel or task starts after normal working hours.
+
+
+        if(this.state.hh_ToL >= this.state.quitWorkingAt_hour){
+            let ot = (this.state.dateOfDeparture.hour(23).minute(59).diff(this.state.departureTime,'minutes') + 1 ) / 60 
+            overTime2 = ot < 0 ? 0 : ot
+        }else{
+            overTime2 = 0
+        }
+        // The sum of travel hours in the date of departure
+        firstStep = overTime1 + overTime2 + normalHours 
+        console.log("o1: "+overTime1);
+        console.log("o2: "+overTime2);
+        console.log("normal hours: "+normalHours);
+
+        let overTime_dateOfDeparture = overTime2 + overTime1 // this value will be recorded to the overtime column of the database if demanded by the company
+
+
+
+       
+
+        const secondStep = back.hour(0).minute(0).diff(leave.hour(23).minute(59), 'day');
+
+        
+
+        const duration3 = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(this.state.startWorkingAt_hour).minute(this.state.startWorkingAt_min).second(0).millisecond(0),'minute')
+        //console.log("dakika: "+duration3);
+        //console.log("saat: "+saat/60);
+        let thirdStep;
+        thirdStep = duration3 / 60;
+
+
+
+        const duration = firstStep + secondStep + thirdStep;
+        console.log("1: "+normalHours);
+        console.log("2: "+secondStep);
+        console.log("3: "+thirdStep);
+
+        console.log(duration);
+
+
+
+
+
+
+
+        if(duration <= 4){
+            this.setTravelDuration(0.5)
+        }else if(duration >= 4 && duration <= 9){
+            this.setTravelDuration(1)
+        }else if (duration > 23.5 ){
+            this.setTravelDuration(duration/24)
         }
 
 
+    }
+
+    setTravelDuration = (duration) => {
+        setTimeout(()=>{
+            this.setState(()=>{
+                return{
+                    travelDuration:duration
+                }
+            })
+        },250)
     }
 
     //-----------------------------------accompaniedBy
@@ -258,11 +363,11 @@ class TravelForm extends React.Component{
     //-----------------------------------accomodation Fee
     accomodationFee_onChange = (e) => {
 
-        const accomodationFeeInput = e.target.value
-        if(!accomodationFeeInput || accomodationFeeInput.match(/^\d{1,}(\.\d{0,2})?$/)){
+        const fee = e.target.value
+        if(!fee || fee.match(/^\d{1,}(\.\d{0,2})?$/)){
             this.setState(()=>{
                 return{
-                    accomodationFee:accomodationFeeInput
+                    accomodationFee:fee
                 }
             })
         }
@@ -400,8 +505,13 @@ class TravelForm extends React.Component{
                             <label htmlFor="date">Date Of Departure</label>
                             <div className="datepicker">
                             <SingleDatePicker 
-                         
-                                />
+                                date={this.state.dateOfDeparture}
+                                onDateChange={this.date_onChange}
+                                focused={this.state.calenderFocused_Departure}
+                                onFocusChange={this.focus_onChange}
+                                numberOfMonths={1}
+                                isOutsideRange={()=>false}
+                            />
                             </div>
                             
 
@@ -457,8 +567,13 @@ class TravelForm extends React.Component{
                         <div className="col-sm-2">
                             <label htmlFor="date">Date Of Return</label>
                             <div className="datepicker">
-                            <SingleDatePicker 
-                         
+                                <SingleDatePicker 
+                                    date={this.state.dateOfReturn}
+                                    onDateChange={this.date_onChange_R}
+                                    focused={this.state.calenderFocused_Return}
+                                    onFocusChange={this.focus_onChange_R}
+                                    numberOfMonths={1}
+                                    isOutsideRange={()=>false}
                                 />
                             </div>
                             
@@ -514,11 +629,10 @@ class TravelForm extends React.Component{
 
                             </div>
                         </div>
-                        <div className="col-sm-4">
-                        <label htmlFor="date">Travel Duration</label>
-                        <input type="text" className="form-control"/>
-                        
 
+                        <div className="col-sm-4">
+                            <label htmlFor="date">Travel Duration (Days)</label>
+                            <input type="text" className="form-control" placeholder={this.state.travelDuration}/>
                         </div>
                         
                     </div>
@@ -551,7 +665,7 @@ class TravelForm extends React.Component{
 
                         <div className="col-sm-4">
                             <label htmlFor="accomodationFee">Accomodaton Fee</label>
-                            <input type="text" className= "form-control" id="accomodationFee" placeholder={this.state.accomodationFee} onChange={this.accomodationFee_onChange}/>
+                            <input type="text" className= "form-control" id="accomodationFee" value={this.state.accomodationFee} onChange={this.accomodationFee_onChange}/>
                         </div>
                         <div className="col-sm-4">
                             <label htmlFor="meansOfTransport">Means Of Transport</label>

@@ -5,8 +5,8 @@ const travelFilterReducerDummyData ={
     searchText:'',
     sortBy:'date',//name,project,traveldestination,startDate,advance,lengthOfStay
     orderBy:'dec',
-    startDate:moment().startOf('month'),
-    endDate:moment().endOf('month'),
+    startDate:moment().startOf('year'),
+    endDate:moment().endOf('year'),
 }
 
 const travelFilterReducer = (state=travelFilterReducerDummyData,action) => {
