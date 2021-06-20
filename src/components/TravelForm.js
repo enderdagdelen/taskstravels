@@ -217,9 +217,11 @@ class TravelForm extends React.Component{
         let dailyHours; // a variant used to calculate normal hours
         let overTime2; // if the travel or task starts after the normal working our, those ours are considered as overtime too.
 
+        //_____________________________________FIRST STEPs
+
         //calculate overtime if travel starts before the time employees start working
         if(this.state.startWorkingAt_hour === this.state.hh_ToL && this.state.startWorkingAt_min > this.state.mm_ToL){
-            overTime1 = Math.abs((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
+            overTime1 = 0.5 //Math.abs((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
         
         }else if(this.state.startWorkingAt_hour === this.state.hh_ToL && this.state.startWorkingAt_min <= this.state.mm_ToL){
             overTime1 = 0;
@@ -239,23 +241,15 @@ class TravelForm extends React.Component{
         //Calculate the travel time which intersects with normal working hour if employee leaves the firm during working hours
         dailyHours =  this.state.departureTime.diff(this.state.dateOfDeparture.hour(this.state.startWorkingAt_hour).minute(this.state.startWorkingAt_min).second(0).millisecond(0),'minute')
 
-        
-            if(overTime1 > 0){
-                normalHours = 9
-    
-            }else{
-                normalHours = dailyHours > 0 ? (dailyHours / 60 >= 9 ? 0 : 9 - (dailyHours / 60)) : 0;
-            }
-        
-                //------------------------  NEREDE KALDIM.
+        if (this.state.hh_ToL === this.state.startWorkingAt_hour && this.state.mm_ToL === this.state.startWorkingAt_min){
+            normalHours = 9
+        }else{
+            normalHours = dailyHours > 0 ? (dailyHours/60 >= 9 ? 0 : 9 - (dailyHours/60)) : 0;
 
-        // eğer overtime1 değeri 0 dan büyükse otomatik olarak normal hours 9 olmak zorundadır. İşte bunu üstteki sidikli kod ile yapamadım. 
+        }
 
-        //dateOfDeparture gününde işten çıkış saatine göre mesai saatinden önce işten çıkış, mesai saatinde işten çıkış ve mesai saatinden 
-        //sonra işten çıkış senaryolarını yaptım. En son şu üstteki olay kaldı. Bundan sonra bu 3 değer yani ovvertime1 ve 2 ve normal hours dateOfDeparture
-        // tarihi için travel duration 'un first step'ini oluşturuyor. SecondStep de oluşturuldu. Şimdi sıra thirdstep için first step ile ilgili olarak yaptığım
-        // çalışmanın benzerini yapmakta. 
 
+        //Gerekli açıklamalar notlar içinde vardır.
 
 
         //calculate time if travel or task starts after normal working hours.
@@ -267,36 +261,83 @@ class TravelForm extends React.Component{
         }else{
             overTime2 = 0
         }
-        // The sum of travel hours in the date of departure
-        firstStep = overTime1 + overTime2 + normalHours 
-        console.log("o1: "+overTime1);
-        console.log("o2: "+overTime2);
-        console.log("normal hours: "+normalHours);
-
-        let overTime_dateOfDeparture = overTime2 + overTime1 // this value will be recorded to the overtime column of the database if demanded by the company
-
-
-
+        // _______________________________________________________The sum of travel hours in the date of departure
+        let firstStep_NormalHours = normalHours 
        
 
-        const secondStep = back.hour(0).minute(0).diff(leave.hour(23).minute(59), 'day');
+        let firstStep_OT = overTime2 + overTime1 // this value will be used to calculate overall overtime of the bussiness trip
 
+
+
+        /* 
+        NEREDE KALDIM
+
+        Şimdiye kadar travelDuration için ilk 3 adımı hesapladım. Şimdi ise travelDuration'ı tanımlamak geldi. Yani toplanarak travelDuration oluşturulacak. 
+
+        Ancak farklı bir bakış açısı da yakaladım. Bunlar; 
+        1- Eğer görev hafta sonları ise o günü komple mesai yazmak
+        2- Görev için gidiş veya dönüş tarihi haftasonu ise bütün saatleri mesai yazmak. 
+            yani eğer kişi pazar akşam saat 4'de yola çıkıyorsa geri kalan bütün saatler mesai yazılacak gibi.
+            Bunla ilgili internettten araştırma yapacağım. Ona göre travelDuration oluşturacağım.
+        */
+        let day = String(this.state.dateOfDeparture._d).split(" ")[0]
+        if(day === "Sun" || day ==="Sat"){
+            console.log("Hafta Sonu");
+        }
         
 
+
+        //________________________________________________________Second Step
+        /* Second step is the number of days between the dateOfDeparture and dateOfReturn. Extra hours and overtime hours are being calculated 
+        in the first and third steps and added to second step later. And those 3 steps constitutes the travelDuration.
+        */
+        const secondStep_NormalHours = back.hour(0).minute(0).diff(leave.hour(23).minute(59), 'day');
+        const secondStep_OT = 0 
+        
+
+        
+        //________________________________________________________Third Step
+
         const duration3 = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(this.state.startWorkingAt_hour).minute(this.state.startWorkingAt_min).second(0).millisecond(0),'minute')
-        //console.log("dakika: "+duration3);
-        //console.log("saat: "+saat/60);
-        let thirdStep;
-        thirdStep = duration3 / 60;
+
+
+        //  if timeOfReturn is before the time of working hour
+        let overTime3 = 0;
+        let hours = 0;
+        let overTime4 = 0;
+        overTime3
+        if(duration3 <= 0){
+            overTime3 = duration3/60 * -1
+        } else if (duration3/60 > 0 && duration3/60 < 9){
+            hours = duration3/60
+        } else if (duration3/60 >= 9){
+            hours = 9
+            overTime4 = duration3/60 - 9
+        }
+
+
+        console.log("o3= " + overTime3);
+        console.log("hours= " + hours);
+        console.log("o4= " + overTime4);
+
+
+        const thirdStep_NormalHours = hours
+        const thirdStep_OT = overTime3 + overTime4
+
+        //  if time of return occurs during the working hours
+
+        //  if time of return occurs after the working hours 
 
 
 
-        const duration = firstStep + secondStep + thirdStep;
-        console.log("1: "+normalHours);
+
+
+        const duration = 0;
+/*      console.log("1: "+normalHours);
         console.log("2: "+secondStep);
-        console.log("3: "+thirdStep);
+        console.log("3: "+thirdStep); */
 
-        console.log(duration);
+        //console.log(duration);
 
 
 
