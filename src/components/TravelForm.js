@@ -37,11 +37,19 @@ class TravelForm extends React.Component{
             hh_ToR:18, // specific for this form to manually modify time of return
             mm_ToR:0, // specific for this form to manually modify time of return
 
-            startWorkingAt_hour:9,//moment().hour(8).minute(30).second(0).millisecond(0),
+            startWorkingAt_hour:9,
             startWorkingAt_min:0,
             quitWorkingAt_hour:18,
             quitWorkingAt_min:0,
             workingHours:9,
+            weekEndHours:5,
+
+            workOnWeekEnd:true,
+            startWorkingAt_hour_wEnd:9,
+            startWorkingAt_min_wEnd:0,
+            quitWorkingAt_hour_wEnd:15,
+            quitWorkingAt_min_wEnd:0,
+
             overTime_Hours:0,
             message:'', //For bootstrap alert-not part of redux
             class:'', //For Bootstrap-not part of redux
@@ -216,56 +224,74 @@ class TravelForm extends React.Component{
         let normalHours; // hours which is spent for travel or task during workng hours. Like if you start working at 9 and leave office at 18 then you leave the office for travel bussiness at 12 so 3 hours for normal work and 6 hours for travel
         let dailyHours; // a variant used to calculate normal hours
         let overTime2; // if the travel or task starts after the normal working our, those ours are considered as overtime too.
+        let overTime_weekend;
 
         //_____________________________________FIRST STEPs
 
-        //calculate overtime if travel starts before the time employees start working
-        if(this.state.startWorkingAt_hour === this.state.hh_ToL && this.state.startWorkingAt_min > this.state.mm_ToL){
-            overTime1 = 0.5 //Math.abs((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
-        
-        }else if(this.state.startWorkingAt_hour === this.state.hh_ToL && this.state.startWorkingAt_min <= this.state.mm_ToL){
-            overTime1 = 0;
-        
-        }else if(this.state.startWorkingAt_hour > this.state.hh_ToL && this.state.startWorkingAt_min > this.state.mm_ToL){
-            overTime1 = this.state.startWorkingAt_hour - this.state.hh_ToL + ((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
+        //If the bussiness travel starts on weekend
+        overTime_weekend = this.weekend_OT_at_dateOfDeparture()
+        console.log("overTime_weekend: "+overTime_weekend);
 
-        }else if (this.state.startWorkingAt_hour > this.state.hh_ToL && this.state.startWorkingAt_min === this.state.mm_ToL){
-            overTime1 = this.state.startWorkingAt_hour - this.state.hh_ToL
 
-        }else if (this.state.startWorkingAt_hour > this.state.hh_ToL && this.state.startWorkingAt_min < this.state.mm_ToL){
-            overTime1 = this.state.startWorkingAt_hour - this.state.hh_ToL + ((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
+
+        //Check the days. If saturday then check if workOnWeekend is true or false. If true use weekend parametres. If false, record it as overtime. If the 
+        //day is sunday record it as day or hour. İf its weekdays do the normal calculations. 
+
+        let day = String(this.state.dateOfDeparture._d).split(" ")[0]
+
+        if(day === "Sat"){
+                
+            //If saturday is a workday weekend parametres are used, if not it 
+            if(this.state.workOnWeekEnd === true){
+                overTime1 = this.calc_overTime1(this.state.startWorkingAt_hour_wEnd, this.state.startWorkingAt_min_wEnd ) //calculate overtime if travel starts before the time employees start working ---ot1---
+                if(overTime1 > 0){
+                    normalHours = this.state.weekEndHours
+                }else{
+                    normalHours = this.calc_normalHours_at_dateOfDeparture(this.state.startWorkingAt_hour_wEnd, this.state.startWorkingAt_min_wEnd, this.state.weekEndHours)  //Calculate the travel time if employee leaves the firm during working hours  ---normalHours---
+
+                }
+
+                overTime2 = this.calc_overTime2(this.state.quitWorkingAt_hour_wEnd) //calculate time if travel or task starts after normal working hours.  ---ot2---
+            
+            }else{
+
+                weekend_OT_at_dateOfDeparture()
+
+            }
+            
+        }else if (day === "Sun"){
+
+            weekend_OT_at_dateOfDeparture()
+
         }else{
-            overTime1 = 0;
+
+            overTime1 = this.calc_overTime1(this.state.startWorkingAt_hour, this.state.startWorkingAt_min ) //calculate overtime if travel starts before the time employees start working ---ot1---
+            if(overTime1 > 0){
+                normalHours = this.state.workingHours
+            }else{
+                normalHours = this.calc_normalHours_at_dateOfDeparture(this.state.startWorkingAt_hour, this.state.startWorkingAt_min, this.state.workOnWeekEnd)  //Calculate the travel time if employee leaves the firm during working hours  ---normalHours---
+
+            }
+
+            overTime2 = this.calc_overTime2(this.state.quitWorkingAt_hour_wEnd) //calculate time if travel or task starts after normal working hours.  ---ot2---
+
         }
 
-        //Calculate the travel time which intersects with normal working hour if employee leaves the firm during working hours
-        dailyHours =  this.state.departureTime.diff(this.state.dateOfDeparture.hour(this.state.startWorkingAt_hour).minute(this.state.startWorkingAt_min).second(0).millisecond(0),'minute')
-
-        if (this.state.hh_ToL === this.state.startWorkingAt_hour && this.state.mm_ToL === this.state.startWorkingAt_min){
-            normalHours = 9
-        }else{
-            normalHours = dailyHours > 0 ? (dailyHours/60 >= 9 ? 0 : 9 - (dailyHours/60)) : 0;
-
-        }
 
 
-        //Gerekli açıklamalar notlar içinde vardır.
+        console.log("ot1:"+overTime1);
+
+        console.log("normalHours: "+ normalHours);
+
+        console.log("overTime2: "+overTime2);
 
 
-        //calculate time if travel or task starts after normal working hours.
-
-
-        if(this.state.hh_ToL >= this.state.quitWorkingAt_hour){
-            let ot = (this.state.dateOfDeparture.hour(23).minute(59).diff(this.state.departureTime,'minutes') + 1 ) / 60 
-            overTime2 = ot < 0 ? 0 : ot
-        }else{
-            overTime2 = 0
-        }
         // _______________________________________________________The sum of travel hours in the date of departure
         let firstStep_NormalHours = normalHours 
-       
+               
 
-        let firstStep_OT = overTime2 + overTime1 // this value will be used to calculate overall overtime of the bussiness trip
+        let firstStep_OT = overTime2 + overTime1 + overTime_weekend// this value will be used to calculate overall overtime of the bussiness trip
+
 
 
 
@@ -274,16 +300,13 @@ class TravelForm extends React.Component{
 
         Şimdiye kadar travelDuration için ilk 3 adımı hesapladım. Şimdi ise travelDuration'ı tanımlamak geldi. Yani toplanarak travelDuration oluşturulacak. 
 
-        Ancak farklı bir bakış açısı da yakaladım. Bunlar; 
+        Ancak farklı bir bakış açısı da yakalcsadım. Bunlar; 
         1- Eğer görev hafta sonları ise o günü komple mesai yazmak
         2- Görev için gidiş veya dönüş tarihi haftasonu ise bütün saatleri mesai yazmak. 
             yani eğer kişi pazar akşam saat 4'de yola çıkıyorsa geri kalan bütün saatler mesai yazılacak gibi.
             Bunla ilgili internettten araştırma yapacağım. Ona göre travelDuration oluşturacağım.
         */
-        let day = String(this.state.dateOfDeparture._d).split(" ")[0]
-        if(day === "Sun" || day ==="Sat"){
-            console.log("Hafta Sonu");
-        }
+
         
 
 
@@ -315,11 +338,11 @@ class TravelForm extends React.Component{
             overTime4 = duration3/60 - 9
         }
 
-
+/*
         console.log("o3= " + overTime3);
         console.log("hours= " + hours);
         console.log("o4= " + overTime4);
-
+*/
 
         const thirdStep_NormalHours = hours
         const thirdStep_OT = overTime3 + overTime4
@@ -365,6 +388,97 @@ class TravelForm extends React.Component{
             })
         },250)
     }
+
+    //overTime1
+    calc_overTime1 = (startHour,startMin) => {
+
+        let overTime1;
+
+        if(startHour === this.state.hh_ToL && startMin > this.state.mm_ToL){
+            overTime1 = 0.5 //Math.abs((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
+        
+        }else if(startHour === this.state.hh_ToL && startMin <= this.state.mm_ToL){
+            overTime1 = 0;
+        
+        }else if(startHour > this.state.hh_ToL && startMin > this.state.mm_ToL){
+            overTime1 = startHour - this.state.hh_ToL + ((startMin - this.state.mm_ToL) / 60)
+
+        }else if (startHour > this.state.hh_ToL && startMin === this.state.mm_ToL){
+            overTime1 = startHour - this.state.hh_ToL
+
+        }else if (startHour > this.state.hh_ToL && startMin < this.state.mm_ToL){
+            overTime1 = startHour - this.state.hh_ToL + ((startMin - this.state.mm_ToL) / 60)
+        }else{
+            overTime1 = 0;
+        }
+
+        return overTime1
+    }
+
+    calc_normalHours_at_dateOfDeparture = (startHour, startMin, hours) => {
+        let dailyHours =  this.state.departureTime.diff(this.state.dateOfDeparture.hour(startHour).minute(startMin).second(0).millisecond(0),'minute')
+
+        let normalHours;
+        if (this.state.hh_ToL === startHour && this.state.mm_ToL === startMin){
+            normalHours = hours
+        }else{
+            normalHours = dailyHours > 0 ? (dailyHours/60 >= hours ? 0 : hours - (dailyHours/60)) : 0;
+        }
+
+        return normalHours
+    }
+
+    calc_overTime2 = (quitHour) => {
+        let overTime2;
+        if(this.state.hh_ToL >= quitHour){
+            let ot = (this.state.dateOfDeparture.hour(23).minute(59).diff(this.state.departureTime,'minutes') + 1 ) / 60 
+            overTime2 = ot < 0 ? 0 : ot
+        }else{
+            overTime2 = 0
+        }
+
+        return overTime2
+    }
+
+    // IF the travel takes place in weekends
+
+    //                                                                      NEREDE KALDIM
+
+    //  artık cumartesi ve hafta içi gün için mesai ve normal saat hesaplarını yapabiliyoruz. Şimdi ise sırada cumartesi çalışma olmadığı zaman ve pazar günü için aşağıdaki fonksiyonu güncellemekte kaldı. Sonra benzer işlemler dönüş tarihi haftasonuna gelip gelmediğine göre düzenlenecek.
+
+
+
+    weekend_OT_at_dateOfDeparture = () => {
+        let day = String(this.state.dateOfDeparture._d).split(" ")[0]
+        let ot_at_dateOfDeparture;
+        if(day === "Sun" || day ==="Sat"){
+            ot_at_dateOfDeparture = this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min).diff(this.state.departureTime,'minutes')
+            
+        }
+        //if saturday is a workday
+        if(day === "Sat" && this.state.workOnWeekEnd){
+
+        }
+
+        return ot_at_dateOfDeparture/60
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //-----------------------------------accompaniedBy
     accompaniedBy_onChange = (e) =>{
