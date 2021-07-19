@@ -44,12 +44,18 @@ class TravelForm extends React.Component{
             workingHours:9,
             weekEndHours:5,
 
-            workOnWeekEnd:true,
+            workOnWeekEnd_Passive:false, 
+            workOnWeekEnd_Active:false,
             startWorkingAt_hour_wEnd:9,
             startWorkingAt_min_wEnd:0,
-            quitWorkingAt_hour_wEnd:15,
+            quitWorkingAt_hour_wEnd:14,
             quitWorkingAt_min_wEnd:0,
 
+            wholeDay_Holidays_2021_TR:[1,113,121,133,134,135,196,201,202,203,204,242,302],
+            halfDay_Holidays_2021_TR:[132,200,301],// 176-25 haziran cuma, 177-26 haziran, 178-27 haziran ve 207 26 temmuz test amaçlı yazıldı. silinecek.
+
+            wholeDay_Holidays_2022_TR:[1,113,121,122,123,124,139,190,191,192,193,196,242,302],
+            halfDay_Holidays_2022_TR:[189,301],
             overTime_Hours:0,
             message:'', //For bootstrap alert-not part of redux
             class:'', //For Bootstrap-not part of redux
@@ -220,166 +226,360 @@ class TravelForm extends React.Component{
         //number of hours worked in the day employee leaves the office
 
         let firstStep; // time duration during the day when employee leaves the country
-        let overTime1; // overtime if the task or travel starts before the working hours
-        let normalHours; // hours which is spent for travel or task during workng hours. Like if you start working at 9 and leave office at 18 then you leave the office for travel bussiness at 12 so 3 hours for normal work and 6 hours for travel
-        let dailyHours; // a variant used to calculate normal hours
-        let overTime2; // if the travel or task starts after the normal working our, those ours are considered as overtime too.
-        let overTime_weekend;
+        let OT1=0; // overtime if the task or travel starts before the working hours
+        let travelHours_atDeparture=0; // hours which is spent for travel or task during workng hours. Like if you start working at 9 and leave office at 18 then you leave the office for travel bussiness at 12 so 3 hours for normal work and 6 hours for travel
+        let dailyHours=0; // a variant used to calculate normal hours
+        let OT2=0; // if the travel or task starts after the normal working our, those ours are considered as overtime too.
+        let WOT=0;
+        let HOT=0;
+        let isHoliday;
+        isHoliday = this.isHoliday(this.state.dateOfDeparture)
 
         //_____________________________________FIRST STEPs
 
         //If the bussiness travel starts on weekend
-        overTime_weekend = this.weekend_OT_at_dateOfDeparture()
-        console.log("overTime_weekend: "+overTime_weekend);
+
 
 
 
         //Check the days. If saturday then check if workOnWeekend is true or false. If true use weekend parametres. If false, record it as overtime. If the 
         //day is sunday record it as day or hour. İf its weekdays do the normal calculations. 
 
-        let day = String(this.state.dateOfDeparture._d).split(" ")[0]
+        let dayOfDeparture = String(this.state.dateOfDeparture._d).split(" ")[0]
 
-        if(day === "Sat"){
-                
-            //If saturday is a workday weekend parametres are used, if not it 
-            if(this.state.workOnWeekEnd === true){
-                overTime1 = this.calc_overTime1(this.state.startWorkingAt_hour_wEnd, this.state.startWorkingAt_min_wEnd ) //calculate overtime if travel starts before the time employees start working ---ot1---
-                if(overTime1 > 0){
-                    normalHours = this.state.weekEndHours
-                }else{
-                    normalHours = this.calc_normalHours_at_dateOfDeparture(this.state.startWorkingAt_hour_wEnd, this.state.startWorkingAt_min_wEnd, this.state.weekEndHours)  //Calculate the travel time if employee leaves the firm during working hours  ---normalHours---
+        
 
+        if(dayOfDeparture === "Sat"){
+           
+        //If saturday is a workday then weekend parametres(09:00 - 14:00) are used.
+            if((this.state.workOnWeekEnd_Passive === true || this.state.workOnWeekEnd_Active === true) && isHoliday ==="Not Holiday"){
+                OT1 = this.state.dateOfDeparture.hour(this.state.startWorkingAt_hour_wEnd).minute(this.state.startWorkingAt_min_wEnd).diff(this.state.departureTime,'minute')/60
+
+                //  1- Weekend morning overtime calculation
+                OT1 < 0 ? OT1 = 0 : OT1 = OT1
+
+                //  2- Weekend normal hours calculation
+
+                if(OT1 > 0){
+                    travelHours_atDeparture = this.state.weekEndHours // if OT1, travel hours is aoutomatically equals to working hours
+
+                }else if(OT1 === 0){
+                    let hour;
+                    hour = this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd).diff(this.state.departureTime,'minute')/60
+                    
+                    if(hour < 0){
+                        travelHours_atDeparture = 0
+                    }else{
+                        travelHours_atDeparture = hour
+                    }
                 }
 
-                overTime2 = this.calc_overTime2(this.state.quitWorkingAt_hour_wEnd) //calculate time if travel or task starts after normal working hours.  ---ot2---
+                //- Weekned evening overtime calculation
+                if(this.state.departureTime.isSameOrAfter(this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd))){
+                    OT2=(this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime,'minute')+1)/60
+                    
+                    if(OT2 > 6){
+                        OT2=6
+                    }else if(this.state.hh_ToL === 24){
+                        OT2=0
+                    }else{
+                        OT2 = OT2
+                    }
+                }
+
             
-            }else{
+            }else if(this.state.workOnWeekEnd_Passive === false && this.state.workOnWeekEnd_Active === false && isHoliday==="Not Holiday"){ // If saturday is not a workday and not a holiday too
 
-                weekend_OT_at_dateOfDeparture()
+                WOT=this.weekend_OT_at_dateOfDeparture_Sat()
 
+            }else if(this.state.workOnWeekEnd_Passive === true || this.state.workOnWeekEnd_Active === true && isHoliday === "Half Day Public Holiday"){
+
+                let time;
+                let time2;
+                time = this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd).diff(this.state.departureTime,'minutes')/60
+
+                if(this.state.departureTime.isBefore(this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd))){
+                    HOT = 5
+                    console.log("sdfad")
+                }else if(this.state.departureTime.isSameOrAfter(this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd))){
+                    let k;
+                    k = (this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime,'minute')+1)/60
+                    console.log(k)
+                    if(k < 0){
+                        k = 0
+                        WOT = 0
+                    }else if(k === 0){
+                        WOT = 0
+                    }else if (k > 0){
+                        k > 6 ? WOT = 6 : WOT = k
+                        
+                    }
+                }
+
+
+
+            }else if (this.state.workOnWeekEnd_Passive === false && this.state.workOnWeekEnd_Active === false && isHoliday==="Half Day Public Holiday"){
+                    
+                // 1.4 Buranın testini yapacağım
+                if(this.state.hh_ToL < 14){
+                    HOT = 5
+                    WOT = 4
+                }else if(this.state.hh_ToL >= 14 && this.state.hh_ToL < 18){
+                    WOT = this.state.dateOfDeparture.hour(18).minute(0).diff(this.state.departureTime,'minutes')/60
+                    HOT = 0
+                }else if (this.state.hh_ToL >= 18 && this.state.hh_ToL < 24){
+                    WOT = (this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime, 'minutes')+1)/60
+                    HOT = 0
+                }
+
+                
+            }else if(isHoliday === "One Day Public Holiday"){
+                HOT = 9
             }
             
-        }else if (day === "Sun"){
-
-            weekend_OT_at_dateOfDeparture()
+        }else if (dayOfDeparture === "Sun"){
+            
+            let x = this.weekend_OT_at_dateOfDeparture_Sun(isHoliday)
+            HOT = x[0]
+            WOT = x[1]
 
         }else{
 
-            overTime1 = this.calc_overTime1(this.state.startWorkingAt_hour, this.state.startWorkingAt_min ) //calculate overtime if travel starts before the time employees start working ---ot1---
-            if(overTime1 > 0){
-                normalHours = this.state.workingHours
-            }else{
-                normalHours = this.calc_normalHours_at_dateOfDeparture(this.state.startWorkingAt_hour, this.state.startWorkingAt_min, this.state.workOnWeekEnd)  //Calculate the travel time if employee leaves the firm during working hours  ---normalHours---
-
-            }
-
-            overTime2 = this.calc_overTime2(this.state.quitWorkingAt_hour_wEnd) //calculate time if travel or task starts after normal working hours.  ---ot2---
-
+            let hours = this.calc_Hours_atDateOfDeparture(isHoliday);
+            OT1=hours[0]//morning overtime 
+            travelHours_atDeparture = hours[1]//normal hours
+            OT2=hours[2]//evening overtime
+            HOT=hours[3]//if the day is on holiday, hours are counted as holiday hours
         }
-
-
-
-        console.log("ot1:"+overTime1);
-
-        console.log("normalHours: "+ normalHours);
-
-        console.log("overTime2: "+overTime2);
 
 
         // _______________________________________________________The sum of travel hours in the date of departure
-        let firstStep_NormalHours = normalHours 
-               
+        firstStep = {
+                        "travelHours":travelHours_atDeparture,
+                        "morningovertime":OT1,
+                        "eveningOverime":OT2,
+                        "weekendOvertime":WOT,
+                        "holidayOvertime":HOT,
 
-        let firstStep_OT = overTime2 + overTime1 + overTime_weekend// this value will be used to calculate overall overtime of the bussiness trip
-
-
-
-
-        /* 
-        NEREDE KALDIM
-
-        Şimdiye kadar travelDuration için ilk 3 adımı hesapladım. Şimdi ise travelDuration'ı tanımlamak geldi. Yani toplanarak travelDuration oluşturulacak. 
-
-        Ancak farklı bir bakış açısı da yakalcsadım. Bunlar; 
-        1- Eğer görev hafta sonları ise o günü komple mesai yazmak
-        2- Görev için gidiş veya dönüş tarihi haftasonu ise bütün saatleri mesai yazmak. 
-            yani eğer kişi pazar akşam saat 4'de yola çıkıyorsa geri kalan bütün saatler mesai yazılacak gibi.
-            Bunla ilgili internettten araştırma yapacağım. Ona göre travelDuration oluşturacağım.
-        */
-
+                        }
         
+        //                console.log("firstStep:",firstStep);
+
+
 
 
         //________________________________________________________Second Step
-        /* Second step is the number of days between the dateOfDeparture and dateOfReturn. Extra hours and overtime hours are being calculated 
-        in the first and third steps and added to second step later. And those 3 steps constitutes the travelDuration.
-        */
-        const secondStep_NormalHours = back.hour(0).minute(0).diff(leave.hour(23).minute(59), 'day');
-        const secondStep_OT = 0 
+
+        /* Second step is the number of days between the dateOfDeparture and dateOfReturn.
+        */      
         
+        //Variables;
+        let hotArr=[]  //array of holiday overtimes for each day when employee is on bussiness trip
+        let wotArr=[]  //array of weekend overtimes for each day when employee is on bussiness trip
+        let awayArr=[] //array of hours for each day when employee is on bussiness trip
+
+        let awayHOT   //sum of holiday overtimes hours for each day when employee is on bussiness trip
+        let awayWOT   //sum of weekend overtimes hours for each day when employee is on bussiness trip
+        let awayHours //sum of hours for each day when employee is on bussiness trip
+
+        //let numberOfAwayDays = this.state.dateOfReturn.hour(12).diff(this.state.dateOfDeparture.hour(12),'day')
+        let numberOfAwayDays = this.state.dateOfReturn.dayOfYear() - this.state.dateOfDeparture.dayOfYear();
+ 
+        let loggedHoursByDays=[]; // log of overtimes and normal wroking hours for each day
+
+        for (let index = 1; index < (numberOfAwayDays); index++) { //index will never exceed or equel to numberOfAwayDays so only the awaydays will be calculated here
+            
+            let nameOFTheDay=String(moment(this.state.dateOfDeparture.valueOf()).add(index,'days')._d).split(" ")[0]
+
+            let isHoliday = this.isHoliday(moment(this.state.dateOfDeparture.valueOf()).add(index,'days'))
+
+            let arr = this.secondStep(nameOFTheDay,isHoliday)
+
+            loggedHoursByDays.push(arr)
+        }
+
+
+        loggedHoursByDays.forEach(loggedHour=>{
+            hotArr.push(loggedHour[0])
+            wotArr.push(loggedHour[1])
+            awayArr.push(loggedHour[2])
+
+        })
+
+
+        awayHOT = hotArr.reduce(function(a,b){
+            return a+b
+        },0)
+
+        awayWOT = wotArr.reduce(function(a,b){
+            return a+b
+        },0)
+
+        awayHours = awayArr.reduce(function(a,b){
+            return a+b
+        },0)
+
+
+
+
 
         
+
         //________________________________________________________Third Step
 
-        const duration3 = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(this.state.startWorkingAt_hour).minute(this.state.startWorkingAt_min).second(0).millisecond(0),'minute')
+        // thirdStep calculates the hours and if necessary overtimes at the day of the return to the company. if the employee arrives at the company at the time of the start of the working hours than its considered that the employee has arrived the day before but prefered to start workin next day. So we do not calculate overtime in the morning. 
 
 
-        //  if timeOfReturn is before the time of working hour
-        let overTime3 = 0;
-        let hours = 0;
-        let overTime4 = 0;
-        overTime3
-        if(duration3 <= 0){
-            overTime3 = duration3/60 * -1
-        } else if (duration3/60 > 0 && duration3/60 < 9){
-            hours = duration3/60
-        } else if (duration3/60 >= 9){
-            hours = 9
-            overTime4 = duration3/60 - 9
+        // variables;
+        let returnHOT = 0; // if the return occurs at a holiday, overtime is kept as returnHOT
+        let returnWOT = 0; // if the return occurs at weekend, overtime is kept as returnWOT
+        let returnOT = 0; // if the return occurs after working hours, overtime is kept as returnOT
+        let returnHours = 0; // if the return occurs at normal workin hours, overtime is kept as returnHours
+        let dayOfReturn = String(this.state.dateOfReturn._d).split(" ")[0]
+
+
+        if(this.isHoliday(this.state.dateOfReturn) === "One Day Public Holiday"){
+
+            returnHOT = 9
+
+        }else if(this.isHoliday(this.state.dateOfReturn) === "Half Day Public Holiday"){
+           
+            returnHOT = 5
+
+            if(dayOfReturn === "Sat" && this.state.timeOfReturn.isAfter(this.state.dateOfReturn.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd).second(0).millisecond(0))){     
+
+                let k = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd).second(0).millisecond(0),'minute')/60
+
+                k > 10 ? returnWOT = 10 : returnWOT = k
+
+            }else if(dayOfReturn === "Sun" && this.state.workOnWeekEnd_Active === false && this.state.workOnWeekEnd_Passive === false && this.state.timeOfReturn.isAfter(this.state.dateOfReturn.hour(this.state.quitWorkingAt_hour_wEnd).minute(this.state.quitWorkingAt_min_wEnd).second(0).millisecond(0))){
+
+                let k = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(14).minute(0).second(0).millisecond(0),'minute')/60
+
+                k > 10 ? returnWOT = 10 : returnWOT = k
+
+            }else if(dayOfReturn === "Sun" && this.state.workOnWeekEnd_Active === true && this.state.workOnWeekEnd_Passive === true){
+
+                let k = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(14).minute(0).second(0).millisecond(0),'minute')/60
+
+                if(k >= 0 && k <=4){
+
+                    returnWOT = 4
+
+                }else if(k > 4){
+
+                    k > 10 ? returnWOT = 10 : returnWOT = k
+
+                }else if(k < 0){
+                    returnWOT = 4
+                }
+            }else{ // for a weekday
+
+                let l = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(14).minute(0).second(0).millisecond(0),'minute')/60
+                let k;
+                l > 10 ? k = 10 : k = l
+
+
+                if(k >= 0 && k <= 4){
+                    returnHours = k
+                }else if(k > 4){
+                    returnHours = 4 
+                    returnOT = k-4
+                }
+
+
+            }
+
+        }else if(dayOfReturn === "Sat"){
+
+            if(this.state.workOnWeekEnd_Active === true && this.state.workOnWeekEnd_Passive === true){
+
+                if(this.state.timeOfReturn.isBefore(this.state.dateOfReturn.hour(14).minute(0).second(0).millisecond(0))){
+
+                    let l = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(9).minute(0).second(0).millisecond(0),'minute')/60
+                    l < 0 ? returnWOT = 0 : returnWOT = l
+
+                }else if(this.state.timeOfReturn.isSameOrAfter(this.state.dateOfReturn.hour(14).minute(0).second(0).millisecond(0))){
+
+                    returnHours = 5
+                    let k = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(14).minute(0).second(0).millisecond(0),'minute')/60
+                    k > 10 ? returnWOT = 10 : returnWOT = k
+
+                }
+
+            }else if(this.state.workOnWeekEnd_Active === false && this.state.workOnWeekEnd_Passive === false){
+
+                let l = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(9).minute(0).second(0).millisecond(0),'minute')/60
+                if(l < 0){
+                    returnWOT = 0
+                }else if(l > 15){
+                    returnWOT = 15
+                }else{
+                    returnWOT = l
+                }
+            }
+
+        }else if(dayOfReturn === "Sun"){
+            
+            if(this.state.workOnWeekEnd_Active === true && this.state.workOnWeekEnd_Passive === true){
+
+                returnWOT = 9
+
+            }else if(this.state.workOnWeekEnd_Active === false && this.state.workOnWeekEnd_Passive === false){
+                let l = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(9).minute(0).second(0).millisecond(0),'minute')/60
+                if(l < 0){
+                    returnWOT = 0
+                }else if(l > 15){
+                    returnWOT = 15
+                }else{
+                    returnWOT = l
+                }
+            }
+
+        }else if(dayOfReturn === "Mon" || dayOfReturn === "Tue" || dayOfReturn === "Wed" || dayOfReturn === "Thu" || dayOfReturn === "Fri" ){
+
+            if(this.state.timeOfReturn.isSameOrBefore(this.state.dateOfReturn.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min))){
+                let l = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(9).minute(0).second(0).millisecond(0),'minute')/60
+                if(l < 0){
+                    returnHours = 0
+                }else if(l > 9){
+                    returnHours = 9
+                }else{
+                    returnHours = l
+                }
+            }else if(this.state.timeOfReturn.isSameOrAfter(this.state.dateOfReturn.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min))){
+                returnHours = 9
+                let l = this.state.timeOfReturn.diff(this.state.dateOfReturn.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min).second(0).millisecond(0),'minute')/60
+                if(l < 0){
+                    returnOT = 0
+                }else if(l > 6){
+                    returnOT = 6
+                }else{
+                    returnOT = l
+                }
+            }
+
         }
 
-/*
-        console.log("o3= " + overTime3);
-        console.log("hours= " + hours);
-        console.log("o4= " + overTime4);
-*/
 
-        const thirdStep_NormalHours = hours
-        const thirdStep_OT = overTime3 + overTime4
+        let bussinessTravelHours = travelHours_atDeparture + awayHours + returnHours
+        let bussinessTravelOT = OT1 + OT2 + returnOT
+        let bussinessTravelWOT = WOT + awayWOT + returnWOT
+        let bussinessTravelHOT = HOT + awayHOT + returnHOT
 
-        //  if time of return occurs during the working hours
-
-        //  if time of return occurs after the working hours 
-
-
+        /*
+        console.log("bussinessTravelHours:"+bussinessTravelHours);
+        console.log("bussinessTravelOT:"+bussinessTravelOT);
+        console.log("bussinessTravelWOT:"+bussinessTravelWOT);
+        console.log("bussinessTravelHOT:"+bussinessTravelHOT);
+        */
 
 
-
-        const duration = 0;
-/*      console.log("1: "+normalHours);
-        console.log("2: "+secondStep);
-        console.log("3: "+thirdStep); */
-
-        //console.log(duration);
-
-
-
-
-
-
-
-        if(duration <= 4){
-            this.setTravelDuration(0.5)
-        }else if(duration >= 4 && duration <= 9){
-            this.setTravelDuration(1)
-        }else if (duration > 23.5 ){
-            this.setTravelDuration(duration/24)
-        }
-
+        this.setTravelDuration(bussinessTravelHours + bussinessTravelOT + bussinessTravelWOT + bussinessTravelHOT)
 
     }
 
-    setTravelDuration = (duration) => {
+    setTravelDuration = (duration) => { // part of travelDuration Calculations
         setTimeout(()=>{
             this.setState(()=>{
                 return{
@@ -389,81 +589,215 @@ class TravelForm extends React.Component{
         },250)
     }
 
-    //overTime1
-    calc_overTime1 = (startHour,startMin) => {
 
-        let overTime1;
+    isHoliday = (date) => { // part of travelDuration Calculations
+        let isHoliday;
 
-        if(startHour === this.state.hh_ToL && startMin > this.state.mm_ToL){
-            overTime1 = 0.5 //Math.abs((this.state.startWorkingAt_min - this.state.mm_ToL) / 60)
+            if(date.year() === 2021){
+                if(this.state.halfDay_Holidays_2021_TR.includes(date.dayOfYear())){
+                    isHoliday = "Half Day Public Holiday"
+                    
+                } else if(this.state.wholeDay_Holidays_2021_TR.includes(date.dayOfYear())){
+                    isHoliday="One Day Public Holiday"
+                }else{
+                    isHoliday ="Not Holiday"
+                }
         
-        }else if(startHour === this.state.hh_ToL && startMin <= this.state.mm_ToL){
-            overTime1 = 0;
+                return isHoliday
+
+            }else if(date.year() === 2022){
+
+                if(this.state.halfDay_Holidays_2022_TR.includes(date.dayOfYear())){
+                    isHoliday = "Half Day Public Holiday"
+                    
+                } else if(this.state.wholeDay_Holidays_2022_TR.includes(date.dayOfYear())){
+                    isHoliday="One Day Public Holiday"
+                }else{
+                    isHoliday ="Not Holiday"
+                }
         
-        }else if(startHour > this.state.hh_ToL && startMin > this.state.mm_ToL){
-            overTime1 = startHour - this.state.hh_ToL + ((startMin - this.state.mm_ToL) / 60)
+                return isHoliday
 
-        }else if (startHour > this.state.hh_ToL && startMin === this.state.mm_ToL){
-            overTime1 = startHour - this.state.hh_ToL
-
-        }else if (startHour > this.state.hh_ToL && startMin < this.state.mm_ToL){
-            overTime1 = startHour - this.state.hh_ToL + ((startMin - this.state.mm_ToL) / 60)
-        }else{
-            overTime1 = 0;
+            }
         }
 
-        return overTime1
-    }
+        
 
-    calc_normalHours_at_dateOfDeparture = (startHour, startMin, hours) => {
-        let dailyHours =  this.state.departureTime.diff(this.state.dateOfDeparture.hour(startHour).minute(startMin).second(0).millisecond(0),'minute')
+ //_________________________________________________________________________________________________________TRAVEL DURATION FIRSTSTEP
+    //OT1-OT2-travelHours
 
-        let normalHours;
-        if (this.state.hh_ToL === startHour && this.state.mm_ToL === startMin){
-            normalHours = hours
-        }else{
-            normalHours = dailyHours > 0 ? (dailyHours/60 >= hours ? 0 : hours - (dailyHours/60)) : 0;
-        }
+    calc_Hours_atDateOfDeparture = (isHoliday) => { // part of travelDuration Calculations
+        let morningOvertime=0, normalHours=0, eveningOvertime=0,holidayovertime=0
+        if(isHoliday === "Half Day Public Holiday"){
 
-        return normalHours
-    }
+            if(this.state.hh_ToL < 14){
 
-    calc_overTime2 = (quitHour) => {
-        let overTime2;
-        if(this.state.hh_ToL >= quitHour){
-            let ot = (this.state.dateOfDeparture.hour(23).minute(59).diff(this.state.departureTime,'minutes') + 1 ) / 60 
-            overTime2 = ot < 0 ? 0 : ot
-        }else{
-            overTime2 = 0
-        }
-
-        return overTime2
-    }
-
-    // IF the travel takes place in weekends
-
-    //                                                                      NEREDE KALDIM
-
-    //  artık cumartesi ve hafta içi gün için mesai ve normal saat hesaplarını yapabiliyoruz. Şimdi ise sırada cumartesi çalışma olmadığı zaman ve pazar günü için aşağıdaki fonksiyonu güncellemekte kaldı. Sonra benzer işlemler dönüş tarihi haftasonuna gelip gelmediğine göre düzenlenecek.
-
-
-
-    weekend_OT_at_dateOfDeparture = () => {
-        let day = String(this.state.dateOfDeparture._d).split(" ")[0]
-        let ot_at_dateOfDeparture;
-        if(day === "Sun" || day ==="Sat"){
-            ot_at_dateOfDeparture = this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min).diff(this.state.departureTime,'minutes')
+                holidayovertime = 5
+                normalHours = 4
             
-        }
-        //if saturday is a workday
-        if(day === "Sat" && this.state.workOnWeekEnd){
+            }else if(this.state.hh_ToL >= 14 && this.state.hh_ToL < this.state.quitWorkingAt_hour){
+                
+                normalHours = this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min).diff(this.state.departureTime,'minute')/60
+            
+            }else if(this.state.hh_ToL >= this.state.quitWorkingAt_hour ){
+
+                if(this.state.hh_ToL === 24){
+                    eveningOvertime = 0
+                }else{
+                    eveningOvertime = (this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime,'minute')+1) /60
+                }   
+            
+            }
+
+        }else if(isHoliday === "One Day Public Holiday"){
+  
+            holidayovertime = 9
+
+        }else if(isHoliday === "Not Holiday"){
+
+            if(this.state.hh_ToL < this.state.startWorkingAt_hour){
+                
+                morningOvertime = this.state.dateOfDeparture.hour(this.state.startWorkingAt_hour).minute(this.state.startWorkingAt_min).diff(this.state.departureTime, 'minute')/60
+                normalHours = 9
+
+            }else if(this.state.hh_ToL === this.state.startWorkingAt_hour && this.state.mm_ToL === this.state.startWorkingAt_min){
+             
+                normalHours = 9
+            
+            }else if(this.state.hh_ToL === this.state.startWorkingAt_hour  && this.state.mm_ToL !== this.state.startWorkingAt_min){
+
+                normalHours = this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min).diff(this.state.departureTime,'minute')/60
+
+            }else if(this.state.hh_ToL > this.state.startWorkingAt_hour && this.state.hh_ToL < this.state.quitWorkingAt_hour){
+
+                normalHours = this.state.dateOfDeparture.hour(this.state.quitWorkingAt_hour).minute(this.state.quitWorkingAt_min).diff(this.state.departureTime,'minute')/60
+
+            }else if(this.state.hh_ToL >= this.state.quitWorkingAt_hour){
+
+
+                if(this.state.hh_ToL === 24){
+                    eveningOvertime = 0
+                }else{
+                    eveningOvertime = (this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime,'minute')+1)/60
+                }
+
+            }
 
         }
 
-        return ot_at_dateOfDeparture/60
+        return [morningOvertime,normalHours,eveningOvertime,holidayovertime]
+
     }
 
 
+
+// IF the travel takes place in weekends
+
+
+    weekend_OT_at_dateOfDeparture_Sat = () => { // part of travelDuration Calculations
+    //let day = String(this.state.dateOfDeparture._d).split(" ")[0]
+        let WOT_atDeparture;
+        
+        if(this.state.hh_ToL >= 18){
+            WOT_atDeparture = (this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime, 'minute')+1)/60
+        } else if (this.state.hh_ToL < 18){
+            WOT_atDeparture = this.state.dateOfDeparture.hour(18).minute(0).diff(this.state.departureTime,'minute')/60
+        }else{
+            WOT_atDeparture=0
+        }
+
+        return WOT_atDeparture;
+    }
+
+    weekend_OT_at_dateOfDeparture_Sun = (isHoliday) => { // part of travelDuration Calculations
+
+        let H_OT=0;
+        let W_OT=0;
+
+        if(this.state.workOnWeekEnd_Active === true && isHoliday === "Not Holiday"){
+            W_OT = 9
+
+        }else if (this.state.workOnWeekEnd_Active === true && isHoliday === "Half Day Public Holiday"){
+            H_OT = 5
+            W_OT = 4
+
+        }else if (this.state.workOnWeekEnd_Active === true && isHoliday === "One Day Public Holiday"){
+            H_OT = 9
+
+        }else if (this.state.workOnWeekEnd_Active === false && isHoliday === "Not Holiday"){
+
+            if(this.state.hh_ToL < 18){
+                W_OT = this.state.dateOfDeparture.hour(18).minute(0).diff(this.state.departureTime, 'minutes')/60
+            }else if (this.state.hh_ToL >= 18){
+                let k;
+                k = (this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime,'minutes')+1)/60
+                if(k < 0 || Number.isInteger(k)){
+                    W_OT = 0
+                }else if(k>6){
+                    W_OT = 6
+                }else if(k < 0.5){
+                    W_OT = 0
+                }else{
+                    W_OT = k
+                }
+            }
+
+        }else if (this.state.workOnWeekEnd_Active === false && isHoliday === "Half Day Public Holiday"){
+
+            if(this.state.hh_ToL < 14){
+                H_OT = 5
+                W_OT = 4
+            }else if (this.state.hh_ToL >= 14 && this.state.hh_ToL < 18){
+                W_OT = this.state.dateOfDeparture.hour(18).minute(0).diff(this.state.departureTime, 'minutes')/60
+            }else if (this.state.hh_ToL >= 18 && this.state.hh_ToL < 24){
+                
+                W_OT = (this.state.dateOfDeparture.endOf('day').diff(this.state.departureTime,'minutes')+1)/60
+                
+            }
+
+        }else if(this.state.workOnWeekEnd_Active === false && isHoliday === "One Day Public Holiday"){
+            H_OT = 9
+        }
+        
+        return [H_OT, W_OT] 
+    }
+
+    
+    // ______________________________________________________________________________________________________________TRAVEL DURATION SECONDSTEP
+    
+    secondStep = (day, isHoliday) => { // part of travelDuration Calculations
+
+        let holidayOvertime = 0
+        let weekendOvertime = 0
+        let travelHour = 0
+
+        if(isHoliday === "One Day Public Holiday"){
+            holidayOvertime = 9
+        }else if(isHoliday === "Half Day Public Holiday"){
+            holidayOvertime = 5
+            if(day === "Sat" || day === "Sun"){
+                weekendOvertime = 4
+            }else{
+                travelHour = 4
+            }
+        }else if(day === "Sat"){
+            if(this.state.workOnWeekEnd_Active === true && this.state.workOnWeekEnd_Passive === true){
+                travelHour=5
+                weekendOvertime = 4
+
+            }else if(this.state.workOnWeekEnd_Active === false && this.state.workOnWeekEnd_Passive === false){
+                weekendOvertime = 9
+            }
+        }else if(day === "Sun"){
+            weekendOvertime = 9
+        }else{
+            travelHour = 9
+        }
+
+        return [holidayOvertime,weekendOvertime, travelHour]
+
+
+    }
 
 
 
