@@ -1,44 +1,68 @@
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 //entry -> output ilk başta zorunlu olan şeylerdir.
 
 
+module.exports = (env, argv) => {
 
-module.exports = {
+    const isProduction = argv.mode === 'production'
+
+    return {
     
-    mode:'development',
-    entry: './src/gorevApp.js',
-    //entry: './playground/hoc.js',
-    //entry: './src/redux_structure/redux.js',
-    output:{
-        path:path.join(__dirname,'public'),
-        filename:'bundle.js'
-    },
-    module:{
-        rules:[{//Yani node_modules içinde olmayan js dosyaları için babel kullan. Kursta gösterilen içerik çalışmadı, oturup bir saat bütün babel uzantılı dosyaları günelledim. Önemli olan package.json içinde yazanları indirmek ve webpack.config.js içindeki modules kısmının tutması.
-            loader:'babel-loader',
-            test: /\.js$/,
-            exclude:/node_modules/,
-            
-        },{
-            test:/\.s?css$/,
-            use:[
-                'style-loader',
-                { loader: 'css-loader', options: { url: false } },
-                'sass-loader'
-             ]
-            /* use:[ // kurs eğitmenlerinden adam bunu silip yukarıdakini yazarsam image ekleyebileceğimi söyledi.
-                'style-loader',
-                'css-loader',
-                'sass-loader'
-            ] */
-        }]
-    },
-    devtool:'eval-cheap-module-source-map',
-    devServer:{
-        contentBase:path.join(__dirname,'public'),//Burayı live server yerine kullanıyoruz sadece. index dosyamızın nerede olduğunu tam adres olarak girmiş oluyoruz.
-        historyApiFallback:true
-    }
-};
+        mode:'development',
+        entry: './src/gorevApp.js',
+        //entry: './playground/hoc.js',
+        //entry: './src/redux_structure/redux.js',
+        output:{
+            path:path.join(__dirname,'public'),
+            filename:'bundle.js'
+        },
+        module:{
+            rules:[{//Yani node_modules içinde olmayan js dosyaları için babel kullan. Kursta gösterilen içerik çalışmadı, oturup bir saat bütün babel uzantılı dosyaları günelledim. Önemli olan package.json içinde yazanları indirmek ve webpack.config.js içindeki modules kısmının tutması.
+                loader:'babel-loader',
+                test: /\.js$/,
+                exclude:/node_modules/,
+                
+            },{
+                test:/\.s?css$/,
+                use:[MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: true
+                        }
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sourceMap: true
+                        }
+                    }
+                ]
+                /* bu kod ile uygulama gayet güzel çalışıyordu ancak video 134 ve sonrasında edward'ın düzeltmesi ile yukarıdaki hale geldi
+                use:[
+                    'style-loader',
+                    { loader: 'css-loader', options: { url: false } },
+                    'sass-loader'
+                 ]
+                 */
+
+            }]
+        },
+        plugins:[
+            new MiniCssExtractPlugin({
+                filename:'styles.css'
+            })
+        ],
+        devtool:isProduction ? 'source-map':'inline-cheap-module-source-map',
+        devServer:{
+            contentBase:path.join(__dirname,'public'),
+            historyApiFallback:true
+        }
+    };
+}
+
+
 
 /*loader /* use:{
                 loader:'babel-loader',

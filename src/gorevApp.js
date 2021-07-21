@@ -239,8 +239,8 @@ const visibleTravels = getVisibleTravels(state.travels, state.travelFilters)
 
 
 
-console.log(visibleTasks);
-console.log(visibleTravels);
+//console.log(visibleTasks);
+//console.log(visibleTravels);
 
 
 
