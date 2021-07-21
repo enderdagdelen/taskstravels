@@ -3,3 +3,7 @@ NOTLAR
 playground
 form.html
 style.css
+public/bundle.js
+public/bundle.js.map
+public/styles.css
+public/styles.css.map
