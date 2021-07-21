@@ -6,6 +6,7 @@ import TasksTravels from '../components/TasksTravels'
 import AddTask from '../components/AddTasks'
 import AddBusinessTravel from '../components/AddBusinessTravel'
 import EditTask from '../components/EditTasks'
+import EditTravel from '../components/EditTravel.js'
 import PageNotFound from '../components/PageNotFound'
 import Help from '../components/Help'
 import Contact from '../components/Contact'
@@ -25,6 +26,7 @@ const AppRouter = () => (
             <Route path="/addtask" component={AddTask} />
             <Route path="/addbusinesstravel" component={AddBusinessTravel} />
             <Route path="/edittask/:id" component={EditTask} />
+            <Route path ="/edittravel/:id" component={EditTravel} />
             <Route path="/contact" component={Contact} />
             <Route path="/help" component = {Help}/>
             <Route component={PageNotFound} />

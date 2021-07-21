@@ -24,7 +24,7 @@ export const TravelListItem = ({id,name,project,travelDestination,
             <td>{meansOfTransport}</td>
             <td>{advance}</td>
             <td>{notes}</td>
-            <td><Link to={`/`}><i className="fas fa-user-edit" ></i></Link></td>
+            <td><Link to={`/edittravel/${id}`}><i className="fas fa-user-edit" ></i></Link></td>
 
         </tr>
     )
@@ -47,7 +47,7 @@ export const TravelListItem1500 = ({id,name,project,travelDestination,
             <td>{meansOfTransport}</td>
             <td>{advance}</td>
             <td>{notes}</td>
-            <td><Link to={`/`}><i className="fas fa-user-edit" ></i></Link></td>
+            <td><Link to={`/edittravel/${id}`}><i className="fas fa-user-edit" ></i></Link></td>
         </tr>
     )
 }
@@ -66,7 +66,7 @@ export const TravelListItem1024 = ({id,name,project,travelDestination,
             <td>{withWhomToMeet}</td>
             <td>{meansOfTransport}</td>
             <td>{advance}</td>
-            <td><Link to={`/`}><i className="fas fa-user-edit" ></i></Link></td>
+            <td><Link to={`/edittravel/${id}`}><i className="fas fa-user-edit" ></i></Link></td>
         </tr>
     )
 }
@@ -82,7 +82,7 @@ export const TravelListItem768 = ({id,name,project,travelDestination,
             <td>{travelDestination}</td>
             <td>{moment(dateOfDeparture).format('Do MM YYYY')}</td>
             <td>{withWhomToMeet}</td>
-            <td><Link to={`/`}><i className="fas fa-user-edit" ></i></Link></td>
+            <td><Link to={`/edittravel/${id}`}><i className="fas fa-user-edit" ></i></Link></td>
         </tr>
     )
 }
@@ -97,7 +97,7 @@ export const TravelListItem414 = ({id,name,project,travelDestination,
             <td>{project}</td>
             <td>{travelDestination}</td>
             <td>{dateOfDeparture}</td>
-            <td><Link to={`/`}><i className="fas fa-user-edit" ></i></Link></td>
+            <td><Link to={`/edittravel/${id}`}><i className="fas fa-user-edit" ></i></Link></td>
         </tr>
     )
 }

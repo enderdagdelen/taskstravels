@@ -39,7 +39,7 @@ const rowAdjustment = ()=>{
 
 const TravelList = (props) => {
     return(
-        <div id="travellist_container">
+        <div id="travellist_container" className="mb-5">
         <h1>Travel List Component</h1>
         The Number of Tasks: {props.travels.length}
             <table className="table">

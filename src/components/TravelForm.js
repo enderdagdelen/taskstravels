@@ -12,22 +12,22 @@ class TravelForm extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            name:'',
-            project:'',
-            travelDestination:'',           
-            dateOfDeparture:moment(),
-            departureTime:moment().hour(9).minute(0).second(0).millisecond(0),
-            dateOfReturn:moment(),
-            timeOfReturn:moment().hour(18).minute(0).second(0).millisecond(0),
-            travelDuration:0.5,
-            accompaniedBy:'',
-            withWhomToMeet:'-',
-            accomodationAddress:'',
-            lengthOfStay:'',
-            accomodationFee:'',
-            meansOfTransport:'-',
-            advance:'',
-            notes:'-',
+            name:props.bussinessTravel ? props.bussinessTravel.name:'',
+            project:props.bussinessTravel ? props.bussinessTravel.project:'',
+            travelDestination:props.bussinessTravel ? props.bussinessTravel.travelDestination:'',           
+            dateOfDeparture:props.bussinessTravel ? moment(props.bussinessTravel.dateOfDeparture):moment(),
+            departureTime:props.bussinessTravel ? moment(props.bussinessTravel.departureTime):moment().hour(9).minute(0).second(0).millisecond(0),
+            dateOfReturn:props.bussinessTravel ? moment(props.bussinessTravel.dateOfReturn):moment(),
+            timeOfReturn:props.bussinessTravel ? moment(props.bussinessTravel.timeOfReturn):moment().hour(18).minute(0).second(0).millisecond(0),
+            travelDuration:props.bussinessTravel ? props.bussinessTravel.travelDuration:0,
+            accompaniedBy:props.bussinessTravel ? props.bussinessTravel.accompaniedBy:'',
+            withWhomToMeet:props.bussinessTravel ? props.bussinessTravel.withWhomToMeet:'-',
+            accomodationAddress:props.bussinessTravel ? props.bussinessTravel.accomodationAddress:'',
+            lengthOfStay:props.bussinessTravel ? props.bussinessTravel.lengthOfStay:0,
+            accomodationFee:props.bussinessTravel ? props.bussinessTravel.accomodationFee:'',
+            meansOfTransport:props.bussinessTravel ? props.bussinessTravel.meansOfTransport:'-',
+            advance:props.bussinessTravel ? props.bussinessTravel.advance.toString():0,
+            notes:props.bussinessTravel ? props.bussinessTravel.notes:'-',
 
             calenderFocused_Departure:false,  //singledatepicker requirement date
             calenderFocused_Return:false,       //singledatepicker requirement date
@@ -59,7 +59,7 @@ class TravelForm extends React.Component{
             overTime_Hours:0,
             message:'', //For bootstrap alert-not part of redux
             class:'', //For Bootstrap-not part of redux
-            taskClass:'', //For Bootstrap-not part of redux
+            travelClass:'', //For Bootstrap-not part of redux
 
             
         }
@@ -896,7 +896,7 @@ class TravelForm extends React.Component{
     }
 
     onSubmit =(e)=>{
-        e.preventDefault()
+        e.preventDefault()// this is needed to prevent the full page refresh
         
 
 
@@ -907,6 +907,8 @@ class TravelForm extends React.Component{
                     class:'alert alert-danger'
                 }
             })
+        
+        
         }else if(!this.state.project){
             this.setState(()=>{
                 return{
@@ -914,21 +916,21 @@ class TravelForm extends React.Component{
                     class:'alert alert-danger'
                 }
             })
-        }else if(!this.state.project){
+        }else if(!this.state.travelDestination){
             this.setState(()=>{
                 return{
-                    message:'Please Provide Task Location',
+                    message:'Please Provide Travel Destination',
                     class:'alert alert-danger'
                 }
             })
         
         }else{
 
-            if(typeof (this.state.taskDuration) !== 'number'){
+            if(typeof (this.state.travelDuration) !== 'number'){
                 this.setState(()=>{
                     return{
                         message:'Please Check Time Of Leave And Return',
-                        taskClass:'alert alert-danger'
+                        travelClass:'alert alert-danger'
                     }
                 })
             }else{
@@ -936,7 +938,7 @@ class TravelForm extends React.Component{
                     return{
                         message:'Submitted',
                         class:'alert alert-success',
-                        taskClass:'alert alert-success'
+                        travelClass:'alert alert-success'
 
     
                     }
@@ -944,12 +946,17 @@ class TravelForm extends React.Component{
                 this.props.onSubmit({
                     name:this.state.name,
                     project:this.state.project,
-                    taskLocation:this.state.taskLocation,
-                    withWhomToMeet:this.state.withWhomToMeet,
-                    date:this.state.date.valueOf(),
-                    timeOfLeave:this.state.timeOfLeave.valueOf(),
+                    travelDestination:this.state.travelDestination,
+                    dateOfDeparture:this.state.dateOfDeparture.valueOf(),
+                    departureTime:this.state.departureTime.valueOf(),
+                    dateOfReturn:this.state.dateOfReturn.valueOf(),
                     timeOfReturn:this.state.timeOfReturn.valueOf(),
-                    taskDuration:this.state.taskDuration,
+                    travelDuration:this.state.travelDuration,
+                    accompaniedBy:this.state.accompaniedBy,
+                    withWhomToMeet:this.state.withWhomToMeet,
+                    accomodationAddress:this.state.accomodationAddress,
+                    lengthOfStay:this.state.lengthOfStay,
+                    accomodationFee:this.state.accomodationFee,
                     meansOfTransport:this.state.meansOfTransport,
                     advance:parseInt(this.state.advance),
                     notes:this.state.notes
@@ -962,8 +969,6 @@ class TravelForm extends React.Component{
         }
 
     }
-        
-
 
     render(){
         return(
@@ -1120,7 +1125,7 @@ class TravelForm extends React.Component{
                         </div>
 
                         <div className="col-sm-4">
-                            <label htmlFor="date">Travel Duration (Days)</label>
+                            <label htmlFor="date">Travel Duration (Hours)</label>
                             <input type="text" className="form-control" placeholder={this.state.travelDuration}/>
                         </div>
                         
@@ -1130,7 +1135,7 @@ class TravelForm extends React.Component{
                     <div className="row p-3">
                         <div className="col-sm-4">
                             <label htmlFor="taskDuration">Accompanied By</label>
-                            <input type="text" className={this.state.taskClass==='alert alert-danger'? "form-control bg-danger":"form-control bg-white"} id="accompaniedBy" placeholder={this.state.accompaniedBy} onChange={this.accompaniedBy_onChange}/>
+                            <input type="text" className="form-control" id="accompaniedBy" placeholder={this.state.accompaniedBy} onChange={this.accompaniedBy_onChange}/>
                         </div> 
 
                         <div className="col-sm-4">

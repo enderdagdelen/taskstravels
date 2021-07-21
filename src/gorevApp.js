@@ -121,7 +121,7 @@ const travelOne = store.dispatch(addTravel({
     travelDestination:'Las Palmas',
     dateOfDeparture:moment(1617278400000).format('Do MM YYYY'),//01 04 2021
     departureTime:moment(),
-    dateOfReturn:moment().format('Do MM YYYY'),
+    dateOfReturn:moment(1617606372000).format('Do MM YYYY'),
     timeOfReturn:moment(),
     travelDuration:3,
     accompaniedBy:'Alone',
@@ -140,7 +140,7 @@ const travelTwo = store.dispatch(addTravel({
     travelDestination:'Istanbul',
     dateOfDeparture:moment(1619870400000).format('Do MM YYYY'),//01 05 2021
     departureTime:moment(),
-    dateOfReturn:moment().format('Do MM YYYY'),
+    dateOfReturn:moment(1620198372000).format('Do MM YYYY'),
     timeOfReturn:moment(),
     travelDuration:6,
     accompaniedBy:'With Sales Team',
@@ -159,7 +159,7 @@ const travelThree = store.dispatch(addTravel({
     travelDestination:'Ciadad Real',
     dateOfDeparture:moment(1622548800000).format('Do MM YYYY'),//01 06 2021
     departureTime:moment(),
-    dateOfReturn:moment().format('Do MM YYYY'),
+    dateOfReturn:moment(1622876772000).format('Do MM YYYY'),
     timeOfReturn:moment(),
     travelDuration:4,
     accompaniedBy:'Alone',
