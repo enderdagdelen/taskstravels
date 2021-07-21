@@ -12,6 +12,9 @@
     "build-babel": "babel src/app.js --out-file=public/scripts/app.js --presets=env,react --watch",
     "test": "jest --config=jest.config.json"
   },
+  "engines":{
+    "node":"^14.14.0"
+  },
   "dependencies": {
     "@babel/cli": "^7.14.5",
     "@babel/core": "^7.14.6",
